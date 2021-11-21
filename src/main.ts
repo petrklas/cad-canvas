@@ -1,5 +1,8 @@
 import { createApp } from 'vue'
+import { store, key } from "./store";
 import App from './App.vue'
 import './assets/global.css'
 
-createApp(App).mount('#app')
+createApp(App)
+.use(store, key)
+.mount('#app')

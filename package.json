@@ -1,5 +1,5 @@
 {
-  "name": "Autocad",
+  "name": "autocad",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "element-plus": "^1.2.0-beta.3",
     "pixi.js": "^6.1.3",
-    "vue": "^3.0.0"
+    "sub-events": "^1.8.9",
+    "vue": "^3.0.0",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.18.0",

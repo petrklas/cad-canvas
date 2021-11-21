@@ -1,26 +1,40 @@
-import IPath from "@/types/IPath";
+import IMenuItem from "@/types/MenuItem";
+import Handler from "./Handlers/Handler";
+import Menu from "./Menu";
+import Renderer from "./Renderer";
+import Stage from "./Stage";
 
 export default class Engine {
-    paths: Array<IPath> = [];
-    context: CanvasRenderingContext2D;
+    renderer: Renderer;
+    menu: Menu;
+    handler: Handler;
+    stage: Stage;
 
-    constructor(context: CanvasRenderingContext2D) {
-        this.context = context;
+    constructor(renderer: Renderer) {
+        this.menu = new Menu();
+        this.renderer = renderer;
+        this.handler = new Handler(this);
+        this.stage = new Stage(renderer);
     }
 
-    public addPath(path: IPath): Array<IPath> {
-        this.paths.push(path);
-
-        return this.paths;
+    getHandler(): Handler {
+        return this.handler;
     }
 
-    public removeObject(path: IPath) {
-        this.paths = this.paths.filter(aPath => aPath !== path)
+    getActiveMenuItem(): IMenuItem {
+        return this.menu.getActive();
     }
 
-    public render(): void {
-        this.paths.forEach((path: IPath) => {
-            path.draw(this.context);
-        });
+    setActiveMenuItem(item: IMenuItem) {
+        this.menu.setActive(item);
+        //this.handler.setEventHandler(item.getHandler(this));
+    }
+
+    getRenderer(): Renderer {
+        return this.renderer;
+    }
+
+    render() {
+        this.stage.renderStage();
     }
 }

@@ -1,28 +1,31 @@
 
-import IEventsHandler from "@/types/EventsHandler";
-import Point, { IPoint } from "@/types/Point";
-import { Line as LineShape } from "../Shapes/Line";
-import Engine from "../Engine";
-import { AxisHelper } from "../Snappers/Helpers"
+import { IShapeEventsHandler } from "@/types/EventsHandler";
+import Point from "@/types/Point";
+import { Line as LineShape } from "../../Shapes/Line";
+import Stage from "../../Stage";
+import { AxisHelper } from "../../Snappers/Helpers"
 import { ISnapper } from "@/types/Snapper";
-import AxisHelperRenderer from "../Renderer/AxisHelperRenderer";
+import AxisHelperRenderer from "../../Renderer/AxisHelperRenderer";
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
-import Mouse from "../Mouse";
+import Mouse from "../../Mouse";
 import { ILineShapeFormProperties } from "@/types/Shape";
+import KeyboardShortcut from "@/models/KeyboardShortucts";
+import { EventKeys } from "@/utils/EventTypes";
 
-export class Line implements IEventsHandler {
+export class Line implements IShapeEventsHandler {
     hasStarted = false;
     originPoint: Point = new Point(0, 0);
-    engine: Engine;
+    stage: Stage;
     activeSnapper: ISnapper | null = null;
     activeHelper: IHelper | null = null;
     shape: LineShape;
     allowSnappers = true;
+    modifier: KeyboardShortcut = new KeyboardShortcut();
     readonly onShapeChange: SubEvent<LineShape> = new SubEvent();
 
-    constructor(engine: Engine) {
-        this.engine = engine;
+    constructor(stage: Stage) {
+        this.stage = stage;
         this.shape = new LineShape();
     }
 
@@ -31,19 +34,19 @@ export class Line implements IEventsHandler {
     }
 
     leftClickDown(mouse: Mouse): void {
-        // if this is first click we do not draw any line
+        const mouseRelativePosition = mouse.getRelativePosition(this.stage.foreground);
+        //const mouseRelativePosition = mouse.getAbsolutePosition();
         if (!this.hasStarted) {
             this.shape = new LineShape();
-            this.shape.setStart(this.engine.stage.toLocal(mouse.getAbsolutePosition()));
+            this.shape.setStart(this.getPointFromCursor(mouseRelativePosition));
             this.hasStarted = true;
         } else {
-            const endPoint = this.getEndpointFromCursor(this.engine.stage.toLocal(mouse.getAbsolutePosition()));
+            const endPoint = this.getPointFromCursor(mouseRelativePosition);
             this.shape.setEnd(endPoint);
             const lineRObject = this.shape.getRenderObject();
+            lineRObject.addToLayer(this.stage.getActiveLayer())
             lineRObject.setInteractive();
-
-            this.engine.stage.addToCurrentLayer(lineRObject);
-            this.engine.render();
+            this.stage.renderStage();
 
             // continue new shape immediately
             const end = this.shape.getEnd();
@@ -53,15 +56,18 @@ export class Line implements IEventsHandler {
     }
 
     mouseMove(mouse: Mouse): void {
-        if (!this.hasStarted) {
-            return;
-        } else {
-            this.engine.stage.clearForeground();
-            this.shape.setEnd(this.getEndpointFromCursor(this.engine.stage.toLocal(mouse.getAbsolutePosition())));
-            const axisHelper = AxisHelper.getAxisHelper(this.shape.getStart(), this.engine.stage.toLocal(mouse.getAbsolutePosition()));
+        const mouseRelativePosition = mouse.getRelativePosition(this.stage.foreground);
+        //const mouseRelativePosition = mouse.getAbsolutePosition();
+        this.renderSnappers();
 
-            if (axisHelper) {
-                this.engine.stage.addToForeground(new AxisHelperRenderer(axisHelper));
+        if (this.hasStarted) {
+            this.stage.clearForeground();
+            this.shape.setEnd(this.getPointFromCursor(mouseRelativePosition));
+            
+            if (this.modifier.isPressed([EventKeys.SHIFT])) {
+                const axisHelper = AxisHelper.getAxisHelper(this.shape.getStart(), mouseRelativePosition);
+                const axisHelperRenderer = axisHelper.getRenderObject();
+                axisHelperRenderer.addToLayer(this.stage.snapLayer);
                 this.activeHelper = axisHelper;
 
             } else {
@@ -69,9 +75,9 @@ export class Line implements IEventsHandler {
             }
 
             const lineRObject = this.shape.getRenderObject();
+            lineRObject.addToLayer(this.stage.foreground)
             lineRObject.showAngleHelper();
-            this.engine.stage.addToForeground(lineRObject);
-            this.engine.render();
+            this.stage.renderStage();
             this.onShapeChange.emit(this.shape);
         }
     }
@@ -80,20 +86,20 @@ export class Line implements IEventsHandler {
         if (!this.hasStarted) {
             return;
         } else {
-            this.engine.stage.clearForeground();
+            this.stage.clearForeground();
 
-            if(data.length) {
+            if (data.length) {
                 this.shape.setLength(data.length);
             }
 
-            if(data.angle) {
+            if (data.angle) {
                 this.shape.setAngle(data.angle)
             }
-            
+
             const lineRObject = this.shape.getRenderObject();
+            lineRObject.addToLayer(this.stage.getActiveLayer());
             lineRObject.setInteractive();
-            this.engine.stage.addToCurrentLayer(lineRObject);
-            this.engine.render();
+            this.stage.renderStage();
             // continue new shape immediately
             const end = this.shape.getEnd();
             this.shape = new LineShape();
@@ -101,6 +107,17 @@ export class Line implements IEventsHandler {
         }
     }
 
+    private renderSnappers() {
+        if (this.activeSnapper) {
+            this.stage.clearSnappers();
+            const snapperRenderer = this.activeSnapper.getRenderObject();
+            snapperRenderer.addToLayer(this.stage.snapLayer);
+            this.stage.renderStage();
+        } else if (this.stage.snapLayer.children.length > 0) {
+            this.stage.clearSnappers();
+            this.stage.renderStage();
+        }
+    }
 
     /**
      * Get the current point - consider snappers and helpers
@@ -108,12 +125,11 @@ export class Line implements IEventsHandler {
      * @param mouseCursor 
      * @returns 
      */
-    private getEndpointFromCursor(mouseCursor: Point): Point {
+    private getPointFromCursor(mouseCursor: Point): Point {
         let endPoint = new Point(0, 0);
         // we need to snap to snapper
         if (this.activeSnapper) {
             endPoint = this.activeSnapper.getSnapPoint();
-            this.engine.stage.addToForeground(this.activeSnapper.getRenderObject());
         }
         // we need to snap to helper (change the coordinates of lineTo)
         else if (this.activeHelper) {
@@ -130,8 +146,8 @@ export class Line implements IEventsHandler {
 
     keyEsc(event: KeyboardEvent) {
         this.reset();
-        this.engine.stage.clearForeground();
-        this.engine.render();
+        this.stage.clearForeground();
+        this.stage.renderStage();
     }
 
     reset() {

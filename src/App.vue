@@ -1,90 +1,114 @@
 <template>
-  <div class="app">
-    <Menu @menuItemClicked="menuItemClicked" />
-    <div>
-      [{{ UIState.mousePosition.x }} x {{ UIState.mousePosition.x }}], Scale: {{ UIState.scale }},
-      <Line />
+  <div>
+    <div id="top-menu" class="font-bigger">
+      <div class="top-menu-container">
+      <TopMenu />
+      </div>
+      <div class="top-menu-container" id="file">
+        Untitled Document
+      </div>
+      <div class="top-menu-container" id="scale">
+        <Scale />
+      </div>
     </div>
-    <div
-      ref="mainCanvas"
-      v-on:mousemove="handleEvent"
-      v-on:mousedown="handleEvent"
-      v-on:mouseup="handleEvent"
-      @wheel.prevent="wheelEvent"
-    ></div>
+    <div id="content">
+      <div id="tools-container">
+        <Menu @menuItemClicked="menuItemClicked" />
+      </div>
+      <div id="layers-container" v-show="store.layerPanelDisplayed">
+        <Layers />
+      </div>
+      <div id="main-canvas">
+        <Canvas />
+      </div>
+      <div id="item-property">
+        Background: [{{ Math.floor(store.mousePosition.x) }} x
+        {{ Math.floor(store.mousePosition.y) }}]<br />
+        <Line />
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  provide,
-  ref,
-  onMounted,
-} from "vue";
+import { defineComponent } from "vue";
 import Menu from "./components/Menu.vue";
-import Line from "./components/MenuItems/Line.vue";
-import Engine from "./models/Engine";
-import Renderer from "./models/Renderer";
-import * as PIXI from "pixi.js";
+import Layers from "./components/Layers.vue";
+import TopMenu from "./components/TopMenu.vue";
+import Scale from "./components/Scale.vue";
+import Line from "./components/ItemProperties/Line.vue";
+import Canvas from "./components/Canvas.vue";
+import { useEngine } from "./models/Engine";
 import IMenuItem from "./types/MenuItem";
-import { useStore } from './store'
+import { useUIStateStore } from "./store/UIState";
 
 export default defineComponent({
   name: "App",
-  components: { Menu, Line },
+  components: { Menu, Line, TopMenu, Layers, Canvas, Scale },
   setup() {
-    const mainCanvas = ref<HTMLDivElement>();
-    const store = useStore();
-    const UIState = ref(store.state);
-    
-    const renderer = new Renderer({
-      width: window.innerWidth - 50,
-      height: window.innerHeight - 50,
-      resolution: window.devicePixelRatio,
-      autoDensity: true,
-      antialias: true,
-    });
-
-    let engine = new Engine(renderer);
-    provide("engine", engine);
-
-    onMounted(() => {
-      if (mainCanvas.value) {
-        mainCanvas.value?.appendChild(renderer.view);
-        // don't know why, but if I remove this the pixi renderer crashes completly
-        new PIXI.Graphics();
-        engine.render();
-      }
-    });
+    const store = useUIStateStore();
+    const engine = useEngine();
 
     return {
       engine,
-      mainCanvas,
-      renderer,
-      UIState,
+      store,
     };
   },
   methods: {
     menuItemClicked(item: IMenuItem) {
-      this.engine.handler.setEventHandler(item.getHandler(this.engine));
-    },  
-
-    handleEvent(event: MouseEvent) {
-      this.engine.handler.handle(event);
+      this.engine.handler.setEventHandler(item.getHandler(this.engine.stage));
     },
-
-    wheelEvent(event: WheelEvent) {
-      this.engine.handler.handle(event);
-    },
-  },
-  mounted() {
-    window.addEventListener("keyup", (event) => {
-      this.engine.handler.handle(event);
-    });
   },
 });
 </script>
 
 <style>
+.app {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#top-menu {
+  background-color: var(--main-bg-color);
+  flex: 0 0 48px;
+  min-height: 48px;
+  height: 48px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#top-menu .top-menu-container {
+  /*padding: 10px;*/
+}
+
+#content {
+  flex: 1;
+  display: flex;
+  height: calc(100vh - 49px);
+  min-width: 800px;
+}
+
+#tools-container {
+  flex: 0 2 90px;
+  border-right: 1px solid var(--border-color);
+}
+
+#layers-container {
+  flex: 0 2 240px;
+  width: 240px;
+  min-width: 240px;
+  border-right: 1px solid var(--border-color);
+}
+
+#item-property {
+  flex: 0 2 240px;
+  border-left: 1px solid var(--border-color);
+}
+
+#main-canvas {
+  flex: 1 1 300px;
+}
 </style>

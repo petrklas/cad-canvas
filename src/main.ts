@@ -1,8 +1,13 @@
 import { createApp } from 'vue'
-import { store, key } from "./store";
 import App from './App.vue'
+import { createPinia } from 'pinia'
+import Engine from './models/Engine'
+import Renderer from './models/Renderer'
+
 import './assets/global.css'
 
+const engine = new Engine();
 createApp(App)
-.use(store, key)
-.mount('#app')
+    .use(createPinia())
+    .provide('engine', engine)
+    .mount('#app')

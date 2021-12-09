@@ -1,24 +1,33 @@
 import RenderableObject from "@/types/RenderableObject";
 import Layer from "./Layer";
 import Renderer from "./Renderer";
+import { Container, DisplayObject } from "@pixi/display";
+import { AppConfig } from "@/config/AppConfig";
+import { RenderableShape } from "@/types/RenderableShape";
 import { Graphics } from "@pixi/graphics";
 
-export default class Stage extends Layer{
-    foreground: Layer = new Layer();
-    background: Layer = new Layer();
-    layers: Layer[] = [new Layer()];
-    snapLayer: Layer = new Layer();
+export default class Stage extends Container{
+    foreground: Layer = new Layer("_F", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
+    background: Layer = new Layer("_B", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
+    layers: Layer[] = [new Layer("Test", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor)];
+    snapLayer: Layer = new Layer("_S", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
     renderer: Renderer;
     virtualScale = 1;
 
     constructor(renderer: Renderer) {
         super();
         this.renderer = renderer;
-        this.x = renderer.width / 2;
-        this.y = renderer.height / 2;
         this.background.addChild(this.layers[0]);
         this.addChild(this.background);
-
+        this.addChild(this.foreground);
+        this.addChild(this.snapLayer);
+        this.x = this.renderer.width / 2;
+        this.y = this.renderer.height / 2;
+        const graphics = new RenderableShape();
+        graphics.lineStyle(3, 0x00BBCC);
+        graphics.drawRect(0, 0, 10, 10);
+        this.addChild(graphics);
+        
     }
 
     getActiveLayer(): Layer {
@@ -38,10 +47,6 @@ export default class Stage extends Layer{
         this.getActiveLayer().addShape(displayObject);
     }
 
-    clearForeground() {
-        this.foreground.removeChildren();
-    }
-
     addToForeground(displayObject: RenderableObject): void {
         this.foreground.addShape(displayObject);
     }
@@ -50,21 +55,34 @@ export default class Stage extends Layer{
         this.snapLayer.addShape(displayObject);
     }
 
-    // we scale the background but keep the snap layer and foreground
+    clearForeground() {
+        this.foreground.removeChildren();
+    }
+
+    clearSnappers() {
+        this.snapLayer.removeChildren();
+    }
+
     setScale(scale: number) {
         this.background.scale.set(scale);
+        this.snapLayer.scale.set(scale);
+        this.foreground.scale.set(scale);
+        this.virtualScale = scale;
     }
 
     renderStage() {
-        const graphics = new Graphics();
-        graphics.beginFill(0xAABBCC);
-        // set the line style to have a width of 5 and set the color to red
-        graphics.lineStyle(5, 0xAABBCC);
-        // draw a rectangle
-        graphics.drawRect(0, 0, 10, 10);
-        this.addChild(graphics);
-        this.addChild(this.foreground);
-        this.addChild(this.snapLayer);
+        const graphics2 = new RenderableShape();
+        graphics2.lineStyle(3, 0xAA00CC);
+        graphics2.drawRect(-20, -20, 10, 10);
+        this.foreground.addChild(graphics2);
+        for(let i = 0; i < this.layers[0].children.length; i++) {
+            const child:DisplayObject = this.layers[0].children[i];
+            
+            if( child instanceof Graphics) {
+                child.lineStyle({width: this.background.borderWith / this.background.scale.x});
+            }
+            
+        }
         this.renderer.render(this);
     }
 }

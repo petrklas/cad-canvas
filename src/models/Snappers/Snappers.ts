@@ -1,6 +1,6 @@
 import Point from "@/types/Point";
 import { SnapTypes, ISnapper } from "@/types/Snapper";
-import { AppConfig } from "@/utils/AppConfig";
+import { AppConfig } from "@/config/AppConfig";
 import CenterSnapperRenderer from "../Renderer/CenterSnapperRenderer";
 import EndPointSnapperRenderer from "../Renderer/EndPointSnapperRenderer";
 

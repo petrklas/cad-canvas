@@ -1,5 +1,8 @@
 import Point from "@/types/Point";
 
+const radToDegMultiplier =  Math.PI / 180;
+const degToRadMultiplier =  Math.PI * 180;
+
 export interface IAngle {
     radians: number;
 
@@ -18,7 +21,7 @@ export class Angle implements IAngle {
     }
 
     toDeg(): number {
-        return this.radians / Math.PI * 180;
+        return this.radians / radToDegMultiplier;
     }
 }
 
@@ -30,7 +33,7 @@ export function angleFromInput(input: number | string): Angle {
         number = input;
     }
     
-    return new Angle(number * Math.PI / 180);
+    return new Angle(number * degToRadMultiplier);
 }
 
 export function getLineAngle(start: Point, end: Point): Angle {

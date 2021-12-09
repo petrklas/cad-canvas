@@ -1,30 +1,36 @@
-import IEventsHandler from "@/types/EventsHandler";
+import { IEventsHandler } from "@/types/EventsHandler";
 import { EventTypes, EventButtons, EventKeys, CustomEvents } from "@/utils/EventTypes";
 import { InteractionManager } from "@pixi/interaction";
 import Engine from "../Engine";
-import { Zoom } from "./Zoom"
+import * as EventHandlers from "./EventHandlers"
 import { Point as PIXIPoint } from "@pixi/math";
 import Point from "@/types/Point";
 import { RenderableShape } from "@/types/RenderableShape";
 import Mouse from "../Mouse";
-import { Pan } from "./Pan";
+import KeyboardShortcut from "../KeyboardShortucts";
 
-export default class Handler {
+export default class CanvasEventHandler {
     engine: Engine;
     mouse: Mouse;
     eventHandler: IEventsHandler | any;
+    private keyboardShortCut: KeyboardShortcut;
     private interactionManager: InteractionManager;
     private previousHandler: IEventsHandler | null = null;
 
     constructor(engine: Engine) {
         this.engine = engine;
+        this.keyboardShortCut = new KeyboardShortcut();
         this.mouse = new Mouse(new Point(0, 0));
-        this.eventHandler = engine.getActiveMenuItem().getHandler(engine);
-        this.interactionManager = new InteractionManager(this.engine.getRenderer());
+        this.setEventHandler(engine.getActiveMenuItem().getHandler(engine.stage));
+        this.interactionManager = this.engine.renderer.plugins.interaction
     }
 
     setEventHandler(eventHandler: IEventsHandler) {
         this.eventHandler = eventHandler;
+
+        if(this.eventHandler.modifier !== "undefined") {
+            this.eventHandler.modifier = this.keyboardShortCut;
+        }
     }
 
     getEventHandler(): IEventsHandler {
@@ -34,7 +40,7 @@ export default class Handler {
     handle(event: Event): void {
         // global event
         if (event instanceof WheelEvent) {
-            const zoomHandler = new Zoom(this.engine);
+            const zoomHandler = new EventHandlers.Zoom(this.engine.stage);
             if (event.deltaY < 0) {
                 zoomHandler.zoomIn(event);
             } else {
@@ -61,13 +67,13 @@ export default class Handler {
                         case EventTypes.MOUSE_DOWN:
                             // remember the current handler
                             this.previousHandler = this.eventHandler;
-                            this.eventHandler = new Pan(this.engine);
+                            this.eventHandler = new EventHandlers.Pan(this.engine.stage);
                             this.call('middleClickDown', this.mouse);
                             break;
                         case EventTypes.MOUSE_UP:
+                            this.call('middleClickUp', this.mouse);
                             this.eventHandler = this.previousHandler;
                             this.previousHandler = null;
-                            this.call('middleClickUp', this.mouse);
                             break;
                     }
                     break;
@@ -75,19 +81,41 @@ export default class Handler {
             }
 
         } else if (event instanceof KeyboardEvent) {
-            switch (event.key) {
-                case EventKeys.ESC:
-                    this.call('keyEsc', event);
-                    break;
-            }
-
-        } else if (event instanceof CustomEvent) {
             switch (event.type) {
-                case CustomEvents.LENGTH:
-                    this.call('setLength', event.detail.length);
+                case EventTypes.KEY_DOWN:
+                    switch (event.key) {
+                        case EventKeys.ESC:
+                            this.keyboardShortCut.addKey(EventKeys.ESC);
+                            break;
+                        case EventKeys.CTRL:
+                            this.keyboardShortCut.addKey(EventKeys.CTRL);
+                            break;
+                        case EventKeys.SHIFT:
+                            this.keyboardShortCut.addKey(EventKeys.SHIFT);
+                            break;
+                        case EventKeys.ALT:
+                            this.keyboardShortCut.addKey(EventKeys.ALT);
+                            break;
+                    }
+                    break;
+                case EventTypes.KEY_UP:
+                    switch (event.key) {
+                        case EventKeys.ESC:
+                            this.keyboardShortCut.removeKey(EventKeys.ESC);
+                            this.call('keyEsc', event);
+                            break;
+                        case EventKeys.CTRL:
+                            this.keyboardShortCut.removeKey(EventKeys.CTRL);
+                            break;
+                        case EventKeys.SHIFT:
+                            this.keyboardShortCut.removeKey(EventKeys.SHIFT);
+                            break;
+                        case EventKeys.ALT:
+                            this.keyboardShortCut.removeKey(EventKeys.ALT);
+                            break;
+                    }
                     break;
             }
-
         }
     }
 
@@ -99,7 +127,7 @@ export default class Handler {
 
     // get the object under the cursor and find it's snappers
     getPossibleSnappers(): void {
-        if(!this.eventHandler.allowSnappers) {
+        if (!this.eventHandler.allowSnappers) {
             return;
         }
 
@@ -108,7 +136,7 @@ export default class Handler {
         if (renderableObject && renderableObject instanceof RenderableShape && renderableObject.shape) {
             const snappers = renderableObject.shape.getSnappers();
             for (let i = 0; i < snappers.length; i++) {
-                if (snappers[i].isSnapPointHovered(this.engine.stage.toLocal(this.mouse.getAbsolutePosition()))) {
+                if (snappers[i].isSnapPointHovered(this.engine.stage.background.toLocal(this.mouse.getAbsolutePosition()))) {
                     this.eventHandler.setActiveSnapper(snappers[i]);
                     return;
                 }

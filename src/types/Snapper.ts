@@ -1,3 +1,4 @@
+import Layer from "@/models/Layer";
 import Point from "./Point";
 import RenderableObject from "./RenderableObject";
 

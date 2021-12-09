@@ -1,6 +1,7 @@
 import { Polygon } from "@pixi/math";
 import { Line } from "../Shapes/Line";
 import { RenderableShape } from "@/types/RenderableShape";
+import Layer from "../Layer";
 
 export default class LineRenderer extends RenderableShape {
     shape: Line;
@@ -8,9 +9,6 @@ export default class LineRenderer extends RenderableShape {
     constructor(line: Line) {
         super();
         this.shape = line;
-        this.lineStyle(1, 0xfffffff, 1);
-        this.moveTo(line.getStart().x, line.getStart().y);
-        this.lineTo(line.getEnd().x, line.getEnd().y);
     }
 
     setInteractive() {
@@ -42,5 +40,21 @@ export default class LineRenderer extends RenderableShape {
         this.lineStyle(1, 0xff0000);
         this.drawShape(polygon);
         this.hitArea = polygon;
+    }
+
+    addToLayer(layer: Layer) {
+        //console.log(this.shape.getStart());
+        //console.log(this.shape.getStart());
+        //const start = layer.toLocal(this.shape.getStart());
+        //const end = layer.toLocal(this.shape.getEnd());
+        
+        const start = this.shape.getStart();
+        const end = this.shape.getEnd();
+        this.lineStyle(layer.borderWith / layer.scale.x, layer.color, 1);
+        this.moveTo(start.x, start.y);
+        this.lineTo(end.x, end.y);
+        //this.pivot.set(start.x, start.y);  
+        //this.position.set(start.x, start.y);
+        layer.addShape(this);
     }
 }

@@ -2,6 +2,8 @@ export const EventTypes = {
   MOUSE_DOWN: "mousedown",
   MOUSE_UP: "mouseup",
   MOUSE_MOVE: "mousemove",
+  KEY_UP: "keyup",
+  KEY_DOWN: "keydown",
 };
 
 export const EventButtons = {
@@ -10,8 +12,11 @@ export const EventButtons = {
   RIGHT: 2,
 }
 
-export const EventKeys = {
-  ESC: 'Escape'
+export const enum EventKeys {
+  ESC = 'Escape',
+  SHIFT = 'Shift',
+  CTRL = 'Control',
+  ALT = 'Alt'
 }
 
 export const CustomEvents = {

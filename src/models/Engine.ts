@@ -1,23 +1,25 @@
 import IMenuItem from "@/types/MenuItem";
-import Handler from "./Handlers/Handler";
+import CanvasEventHandler from "./Handlers/CanvasEventHandler";
 import Menu from "./Menu";
 import Renderer from "./Renderer";
 import Stage from "./Stage";
+import { inject } from "vue-demi";
 
 export default class Engine {
     renderer: Renderer;
     menu: Menu;
-    handler: Handler;
+    handler: CanvasEventHandler;
     stage: Stage;
 
-    constructor(renderer: Renderer) {
+    constructor() {
         this.menu = new Menu();
-        this.renderer = renderer;
-        this.handler = new Handler(this);
-        this.stage = new Stage(renderer);
+        this.renderer = this.initRenderer();
+        this.stage = new Stage(this.renderer);
+        this.handler = new CanvasEventHandler(this);
+
     }
 
-    getHandler(): Handler {
+    getHandler(): CanvasEventHandler {
         return this.handler;
     }
 
@@ -37,4 +39,25 @@ export default class Engine {
     render() {
         this.stage.renderStage();
     }
+
+    initRenderer(): Renderer {
+        return new Renderer({
+            width: 100,
+            height: 100,
+            resolution: window.devicePixelRatio,
+            autoDensity: true,
+            antialias: true,
+        });
+    }
+}
+
+export function useEngine(): Engine {
+
+    const engine = inject<Engine>("engine");
+
+    if(engine === undefined) {
+      throw new Error(__filename + ": Engine instance is required");
+    }
+
+    return engine;
 }

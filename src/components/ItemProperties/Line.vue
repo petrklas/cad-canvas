@@ -124,8 +124,6 @@ export default defineComponent({
 
   methods: {
     onEnterPress() {
-      console.log(this.shapeProperties);
-      console.log(this.angleSet, this.lengthSet);
       let formData: ILineShapeFormProperties = {};
       if (this.lengthSet && this.shapeProperties.length !== undefined) {
         formData.length = this.shapeProperties.length;
@@ -135,7 +133,6 @@ export default defineComponent({
         formData.angle = this.shapeProperties.angle;
       }
 
-      console.log(formData);
       this.handler.formSubmit(formData);
       this.lengthSet = false;
       this.angleSet = false;

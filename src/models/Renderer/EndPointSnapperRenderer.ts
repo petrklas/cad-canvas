@@ -1,6 +1,7 @@
 import { RenderableSnapper } from "@/types/Snapper";
 import { EndPointSnapper } from "../Snappers/Snappers"
-import { AppConfig } from "@/utils/AppConfig";
+import { AppConfig } from "@/config/AppConfig";
+import Layer from "../Layer";
 
 export default class EndPointSnapperRenderer extends RenderableSnapper {
     snapper: EndPointSnapper;
@@ -8,8 +9,12 @@ export default class EndPointSnapperRenderer extends RenderableSnapper {
     constructor(snapper: EndPointSnapper) {
         super();
         this.snapper = snapper;
-        this.lineStyle(AppConfig.snapper.borderWidth, AppConfig.snapper.color, 1);
-        const offset = AppConfig.snapper.width / 2;
-        this.drawRect(this.snapper.getSnapPoint().x - offset,  this.snapper.getSnapPoint().y - offset, AppConfig.snapper.width, AppConfig.snapper.width);
+    }
+
+    addToLayer(layer: Layer) {
+        this.lineStyle(AppConfig.snapper.borderWidth / layer.scale.x, AppConfig.snapper.color, 1);
+        const offset = AppConfig.snapper.width / layer.scale.x / 2;
+        this.drawRect(this.snapper.getSnapPoint().x - offset,  this.snapper.getSnapPoint().y - offset, AppConfig.snapper.width /  layer.scale.x, AppConfig.snapper.width /  layer.scale.x);
+        layer.addShape(this);
     }
 }

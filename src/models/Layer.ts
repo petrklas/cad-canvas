@@ -1,10 +1,20 @@
 import { Container } from "@pixi/display";
 import { ISnapper } from "@/types/Snapper";
 import RenderableObject from "@/types/RenderableObject";
+import ILayer from "@/types/Layer";
 
-export default class Layer extends Container {
+export default class Layer extends Container implements ILayer {
     snappers: Array<ISnapper> = [];
-    name = "";
+    borderWith: number;
+    color: number;
+    name: string;
+
+    constructor(name: string, borderWidth: number, color: number ) {
+        super();
+        this.name = name;
+        this.borderWith = borderWidth;
+        this.color = color;
+    }
 
     getSnappers(): Array<ISnapper> {
         return this.snappers;

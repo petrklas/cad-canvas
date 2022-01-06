@@ -14,28 +14,26 @@ export class Pan implements IGlobalEventsHandler {
         this.stage = stage;
     }
 
-    middleClickDown(mouse: Mouse): void {
+    middleClickDown(): void {
         this.hasStarted = true;
-        this.lastPoint = new Point(mouse.x, mouse.y);
+        this.lastPoint = this.stage.mousePosition.absolute;
 
     }
 
-    middleClickUp(mouse: Mouse): void {
+    middleClickUp(): void {
         this.hasStarted = false;
         this.lastPoint = new Point(0, 0);
 
     }
 
-    mouseMove(mouse: Mouse): void {
+    mouseMove(): void {
         if (this.hasStarted) {
-            const xShift = mouse.x - this.lastPoint.x;
-            const yShift = mouse.y - this.lastPoint.y;
+            const xShift = this.stage.mousePosition.absolute.x - this.lastPoint.x;
+            const yShift = this.stage.mousePosition.absolute.y - this.lastPoint.y;
 
             this.stage.x += xShift;
             this.stage.y += yShift;
-            this.stage.renderStage();
-            this.lastPoint.x = mouse.x;
-            this.lastPoint.y = mouse.y;
+            this.lastPoint = this.stage.mousePosition.absolute;
         }
     }
 }

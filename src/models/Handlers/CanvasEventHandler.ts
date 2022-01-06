@@ -6,12 +6,10 @@ import * as EventHandlers from "./EventHandlers"
 import { Point as PIXIPoint } from "@pixi/math";
 import Point from "@/types/Point";
 import { RenderableShape } from "@/types/RenderableShape";
-import Mouse from "../Mouse";
 import KeyboardShortcut from "../KeyboardShortucts";
 
 export default class CanvasEventHandler {
     engine: Engine;
-    mouse: Mouse;
     eventHandler: IEventsHandler | any;
     private keyboardShortCut: KeyboardShortcut;
     private interactionManager: InteractionManager;
@@ -20,8 +18,6 @@ export default class CanvasEventHandler {
     constructor(engine: Engine) {
         this.engine = engine;
         this.keyboardShortCut = new KeyboardShortcut();
-        this.mouse = new Mouse(new Point(0, 0));
-        this.setEventHandler(engine.getActiveMenuItem().getHandler(engine.stage));
         this.interactionManager = this.engine.renderer.plugins.interaction
     }
 
@@ -47,18 +43,17 @@ export default class CanvasEventHandler {
                 zoomHandler.zoomOut(event);
             }
         } else if (event instanceof MouseEvent) {
-            this.mouse.x = event.offsetX;
-            this.mouse.y = event.offsetY;
+            this.engine.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
 
             switch (event.button) {
                 case EventButtons.LEFT:
                     switch (event.type) {
                         case EventTypes.MOUSE_DOWN:
-                            this.call('leftClickDown', this.mouse);
+                            this.call('leftClickDown');
                             break;
                         case EventTypes.MOUSE_MOVE:
                             this.getPossibleSnappers();
-                            this.call('mouseMove', this.mouse);
+                            this.call('mouseMove');
                             break;
                     }
                     break;
@@ -68,10 +63,10 @@ export default class CanvasEventHandler {
                             // remember the current handler
                             this.previousHandler = this.eventHandler;
                             this.eventHandler = new EventHandlers.Pan(this.engine.stage);
-                            this.call('middleClickDown', this.mouse);
+                            this.call('middleClickDown', event);
                             break;
                         case EventTypes.MOUSE_UP:
-                            this.call('middleClickUp', this.mouse);
+                            this.call('middleClickUp', event);
                             this.eventHandler = this.previousHandler;
                             this.previousHandler = null;
                             break;
@@ -117,11 +112,13 @@ export default class CanvasEventHandler {
                     break;
             }
         }
+
+        this.engine.stage.renderStage();
     }
 
-    call(functionName: string, event: any): void {
+    call(functionName: string, ...args: any[]): void {
         if (typeof this.eventHandler[functionName] === 'function') {
-            this.eventHandler[functionName](event);
+            this.eventHandler[functionName](...args);
         }
     }
 
@@ -131,12 +128,12 @@ export default class CanvasEventHandler {
             return;
         }
 
-        const mousePoint = this.mouse.getAbsolutePosition();
+        const mousePoint = this.engine.stage.mousePosition.absolute;
         const renderableObject = this.interactionManager.hitTest(new PIXIPoint(mousePoint.x, mousePoint.y), this.engine.stage.background);
         if (renderableObject && renderableObject instanceof RenderableShape && renderableObject.shape) {
             const snappers = renderableObject.shape.getSnappers();
             for (let i = 0; i < snappers.length; i++) {
-                if (snappers[i].isSnapPointHovered(this.engine.stage.background.toLocal(this.mouse.getAbsolutePosition()))) {
+                if (snappers[i].isSnapPointHovered(this.engine.stage.mousePosition.relative)) {
                     this.eventHandler.setActiveSnapper(snappers[i]);
                     return;
                 }

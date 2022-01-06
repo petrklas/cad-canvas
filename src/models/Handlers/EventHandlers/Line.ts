@@ -5,10 +5,8 @@ import { Line as LineShape } from "../../Shapes/Line";
 import Stage from "../../Stage";
 import { AxisHelper } from "../../Snappers/Helpers"
 import { ISnapper } from "@/types/Snapper";
-import AxisHelperRenderer from "../../Renderer/AxisHelperRenderer";
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
-import Mouse from "../../Mouse";
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/KeyboardShortucts";
 import { EventKeys } from "@/utils/EventTypes";
@@ -33,8 +31,8 @@ export class Line implements IShapeEventsHandler {
         this.activeSnapper = snapper;
     }
 
-    leftClickDown(mouse: Mouse): void {
-        const mouseRelativePosition = mouse.getRelativePosition(this.stage.foreground);
+    leftClickDown(): void {
+        const mouseRelativePosition = this.stage.mousePosition.relative;
         //const mouseRelativePosition = mouse.getAbsolutePosition();
         if (!this.hasStarted) {
             this.shape = new LineShape();
@@ -44,9 +42,8 @@ export class Line implements IShapeEventsHandler {
             const endPoint = this.getPointFromCursor(mouseRelativePosition);
             this.shape.setEnd(endPoint);
             const lineRObject = this.shape.getRenderObject();
-            lineRObject.addToLayer(this.stage.getActiveLayer())
+            lineRObject.addToLayer(this.stage.background.getActiveLayer())
             lineRObject.setInteractive();
-            this.stage.renderStage();
 
             // continue new shape immediately
             const end = this.shape.getEnd();
@@ -55,8 +52,8 @@ export class Line implements IShapeEventsHandler {
         }
     }
 
-    mouseMove(mouse: Mouse): void {
-        const mouseRelativePosition = mouse.getRelativePosition(this.stage.foreground);
+    mouseMove(): void {
+        const mouseRelativePosition = this.stage.mousePosition.relative;
         //const mouseRelativePosition = mouse.getAbsolutePosition();
         this.renderSnappers();
 
@@ -74,10 +71,10 @@ export class Line implements IShapeEventsHandler {
                 this.activeHelper = null;
             }
 
+
             const lineRObject = this.shape.getRenderObject();
             lineRObject.addToLayer(this.stage.foreground)
             lineRObject.showAngleHelper();
-            this.stage.renderStage();
             this.onShapeChange.emit(this.shape);
         }
     }
@@ -97,9 +94,8 @@ export class Line implements IShapeEventsHandler {
             }
 
             const lineRObject = this.shape.getRenderObject();
-            lineRObject.addToLayer(this.stage.getActiveLayer());
+            lineRObject.addToLayer(this.stage.background.getActiveLayer());
             lineRObject.setInteractive();
-            this.stage.renderStage();
             // continue new shape immediately
             const end = this.shape.getEnd();
             this.shape = new LineShape();
@@ -112,10 +108,9 @@ export class Line implements IShapeEventsHandler {
             this.stage.clearSnappers();
             const snapperRenderer = this.activeSnapper.getRenderObject();
             snapperRenderer.addToLayer(this.stage.snapLayer);
-            this.stage.renderStage();
         } else if (this.stage.snapLayer.children.length > 0) {
             this.stage.clearSnappers();
-            this.stage.renderStage();
+            
         }
     }
 
@@ -147,7 +142,6 @@ export class Line implements IShapeEventsHandler {
     keyEsc(event: KeyboardEvent) {
         this.reset();
         this.stage.clearForeground();
-        this.stage.renderStage();
     }
 
     reset() {

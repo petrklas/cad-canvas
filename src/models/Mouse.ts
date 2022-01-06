@@ -1,20 +1,16 @@
+import IMousePosition from "@/types/Mouse";
 import Point from "@/types/Point";
 import Layer from "./Layer";
 
-export default class Mouse {
-    x: number;
-    y: number;
-
-    constructor(position: Point) {
-        this.x = position.x;
-        this.y = position.y;
-    }
+export default class MousePosition implements IMousePosition{
+    absolute: Point = new Point(0, 0);
+    relative: Point = new Point(0, 0);
 
     getAbsolutePosition(): Point {
-        return new Point(this.x, this.y);
+        return this.absolute;
     }
 
-    getRelativePosition(layer: Layer): Point {
-        return layer.toLocal(this.getAbsolutePosition());
+    getRelativePosition(): Point {
+        return this.relative;
     }
 }

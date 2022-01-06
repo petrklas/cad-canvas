@@ -1,50 +1,41 @@
 import RenderableObject from "@/types/RenderableObject";
 import Layer from "./Layer";
 import Renderer from "./Renderer";
-import { Container, DisplayObject } from "@pixi/display";
-import { AppConfig } from "@/config/AppConfig";
 import { RenderableShape } from "@/types/RenderableShape";
-import { Graphics } from "@pixi/graphics";
+import ForegroundLayer from "./ForegroundLayer";
+import MousePosition from "./Mouse";
+import { SubEvent } from "sub-events";
+import Point from "@/types/Point";
+import Container from "./Container";
+import { AppConfig } from "@/config/AppConfig";
 
-export default class Stage extends Container{
-    foreground: Layer = new Layer("_F", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
-    background: Layer = new Layer("_B", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
-    layers: Layer[] = [new Layer("Test", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor)];
-    snapLayer: Layer = new Layer("_S", AppConfig.layer.defaultWidth, AppConfig.layer.defaultColor);
+export default class Stage extends Container {
+    foreground: ForegroundLayer = new ForegroundLayer();
+    background: Container = new Container();
+    snapLayer: Layer = new Layer();
     renderer: Renderer;
-    virtualScale = 1;
+    mousePosition: MousePosition = new MousePosition();
+    readonly onMouseMove: SubEvent<MousePosition> = new SubEvent();
 
     constructor(renderer: Renderer) {
         super();
         this.renderer = renderer;
-        this.background.addChild(this.layers[0]);
+        this.background.addLayer(new Layer({name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor}), true);
+        this.foreground.setCurrentLayer(this.background.getActiveLayer());
         this.addChild(this.background);
-        this.addChild(this.foreground);
-        this.addChild(this.snapLayer);
-        this.x = this.renderer.width / 2;
-        this.y = this.renderer.height / 2;
+        this.addLayer(this.foreground, true);
+        this.addLayer(this.snapLayer);
         const graphics = new RenderableShape();
         graphics.lineStyle(3, 0x00BBCC);
         graphics.drawRect(0, 0, 10, 10);
         this.addChild(graphics);
-        
     }
 
-    getActiveLayer(): Layer {
-        return this.layers[0];
-    }
-
-    addToLayer(displayObject: RenderableObject, layer: Layer): void {
-        const index: number = this.layers.indexOf(layer)
-        if (index != -1) {
-            this.layers[index].addShape(displayObject);
-        } else {
-            throw new Error(__filename + ": Layer does not exist");
-        }
-    }
-
-    addToCurrentLayer(displayObject: RenderableObject): void {
-        this.getActiveLayer().addShape(displayObject);
+    // get the coordinates of mouse on canvas and convert them to local coordinates
+    setMousePosition(absolutePosition: Point) {
+        this.mousePosition.absolute = absolutePosition;
+        this.mousePosition.relative = this.background.getActiveLayer().toLocal(absolutePosition);
+        this.onMouseMove.emit(this.mousePosition);
     }
 
     addToForeground(displayObject: RenderableObject): void {
@@ -58,31 +49,29 @@ export default class Stage extends Container{
     clearForeground() {
         this.foreground.removeChildren();
     }
+    
+    setScale(scale: number): void {
+        super.setScale(scale);
+        this.background.setScale(scale);    
+    }
 
     clearSnappers() {
         this.snapLayer.removeChildren();
     }
 
-    setScale(scale: number) {
-        this.background.scale.set(scale);
-        this.snapLayer.scale.set(scale);
-        this.foreground.scale.set(scale);
-        this.virtualScale = scale;
+    resize(width: number, height: number) {
+        this.renderer.resize(width, height);
+        this.x = Math.round(width / 2);
+        this.y = Math.round(height / 2);
+        this.renderStage();
     }
+       
 
     renderStage() {
         const graphics2 = new RenderableShape();
         graphics2.lineStyle(3, 0xAA00CC);
         graphics2.drawRect(-20, -20, 10, 10);
         this.foreground.addChild(graphics2);
-        for(let i = 0; i < this.layers[0].children.length; i++) {
-            const child:DisplayObject = this.layers[0].children[i];
-            
-            if( child instanceof Graphics) {
-                child.lineStyle({width: this.background.borderWith / this.background.scale.x});
-            }
-            
-        }
         this.renderer.render(this);
     }
 }

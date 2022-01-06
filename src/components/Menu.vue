@@ -19,16 +19,20 @@
 <script lang="ts">
 import { useMenu } from "@/models/Menu"
 import { useUIStateStore } from "@/store/UIState";
-import { defineComponent, toRef } from "@vue/runtime-core";
+import { defineComponent, onMounted, toRef } from "@vue/runtime-core";
 
 export default defineComponent({
 
   emits: ["menuItemClicked"],
 
-  setup() {
+  setup(props, { emit }) {
     const store = useUIStateStore();
     const {menuItems, activeMenuItem, setActiveMenu} = useMenu();
     let layerPanelDisplayed = toRef(store, "layerPanelDisplayed");
+
+    onMounted(() => {
+      emit("menuItemClicked", activeMenuItem);
+    });
     
     return {
       menuItems,

@@ -29,8 +29,7 @@ import {
   reactive,
   inject,
   onMounted,
-  onUnmounted,
-  onUpdated,
+  onUnmounted
 } from "@vue/runtime-core";
 import { ILineShapeFormProperties } from "@/types/Shape";
 import { Angle, angleFromInput } from "@/utils/Math";

@@ -23,17 +23,12 @@ export default class Engine {
         return this.handler;
     }
 
-    getActiveMenuItem(): IMenuItem {
-        return this.menu.getActive();
-    }
-
-    setActiveMenuItem(item: IMenuItem) {
-        this.menu.setActive(item);
-        //this.handler.setEventHandler(item.getHandler(this));
-    }
-
     getRenderer(): Renderer {
         return this.renderer;
+    }
+
+    getStage(): Stage {
+        return this.stage;
     }
 
     render() {

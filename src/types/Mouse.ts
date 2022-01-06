@@ -1,5 +1,6 @@
-export default interface IMouse {
-    x: number,
-    y: number,
-    cursor?: string
+import Point from "./Point";
+
+export default interface IMousePosition {
+    absolute: Point,
+    relative: Point,
 }

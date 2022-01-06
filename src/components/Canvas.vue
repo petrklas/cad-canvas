@@ -21,6 +21,7 @@ export default defineComponent({
     const store = useUIStateStore();
     const engine = useEngine();
     const renderer = engine.getRenderer();
+    const stage = engine.getStage();
     const layerPanelDisplayed = toRef(store, "layerPanelDisplayed");
 
 
@@ -30,7 +31,7 @@ export default defineComponent({
         resizeCanvas();
         // don't know why, but if I remove this the pixi renderer crashes completly
         new PIXI.Graphics();
-        engine.render();
+        stage.renderStage();
       }
     });
 
@@ -40,11 +41,10 @@ export default defineComponent({
 
     let resizeCanvas = () => {
       if (mainCanvas.value) {
-        renderer.resize(
+        stage.resize(
           window.innerWidth - 570 + (store.layerPanelDisplayed ? 0 : 240),
           window.innerHeight - 49,
         );
-        engine.render();
       }
     };
 
@@ -74,12 +74,12 @@ export default defineComponent({
 
     mouseMove(event: MouseEvent) {
       this.engine.handler.handle(event);
-      this.store.mousePosition = this.engine.handler.mouse.getAbsolutePosition();
+      this.store.mousePosition = this.engine.stage.mousePosition.relative;
     },
 
     wheelEvent(event: WheelEvent) {
       this.engine.handler.handle(event);
-      this.store.scale = this.engine.stage.virtualScale;
+      this.store.scale = this.engine.stage.foreground.getScale();
     },
   },
   watch: {

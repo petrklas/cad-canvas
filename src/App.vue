@@ -24,19 +24,20 @@
       <div id="item-property">
         Background: [{{ Math.floor(store.mousePosition.x) }} x
         {{ Math.floor(store.mousePosition.y) }}]<br />
-        <Line />
+        <keep-alive>
+          <component :is="toolProperty" v-if="toolProperty != ''"></component>
+        </keep-alive>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, defineAsyncComponent, ref } from "vue";
 import Menu from "./components/Menu.vue";
 import Layers from "./components/Layers.vue";
 import TopMenu from "./components/TopMenu.vue";
 import Scale from "./components/Scale.vue";
-import Line from "./components/ItemProperties/Line.vue";
 import Canvas from "./components/Canvas.vue";
 import { useEngine } from "./models/Engine";
 import IMenuItem from "./types/MenuItem";
@@ -44,19 +45,26 @@ import { useUIStateStore } from "./store/UIState";
 
 export default defineComponent({
   name: "App",
-  components: { Menu, Line, TopMenu, Layers, Canvas, Scale },
+  components: { 
+    LineProperty: defineAsyncComponent(() =>
+      import('./components/ToolProperties/Line.vue')
+    ),
+    Menu, TopMenu, Layers, Canvas, Scale },
   setup() {
     const store = useUIStateStore();
     const engine = useEngine();
+    const toolProperty = ref('');
 
     return {
       engine,
       store,
+      toolProperty
     };
   },
   methods: {
     menuItemClicked(item: IMenuItem) {
       this.engine.handler.setEventHandler(item.getHandler(this.engine.stage));
+      this.toolProperty = 'LineProperty';
     },
   },
 });
@@ -78,10 +86,6 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-#top-menu .top-menu-container {
-  /*padding: 10px;*/
 }
 
 #content {

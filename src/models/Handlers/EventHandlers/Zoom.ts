@@ -26,12 +26,12 @@ export class Zoom implements IGlobalEventsHandler {
         const stage = this.stage;
         let  scale = 1;
         if(direction == "in") {
-            scale = Math.min(stage.virtualScale + AppConfig.zoomStep, AppConfig.zoomMax);
+            scale = Math.min(stage.foreground.getScale() + AppConfig.zoomStep, AppConfig.zoomMax);
         } else {
-            scale = Math.max(stage.virtualScale - AppConfig.zoomStep, AppConfig.zoomMin);
+            scale = Math.max(stage.foreground.getScale() - AppConfig.zoomStep, AppConfig.zoomMin);
         }
         
-        const worldPos = {x: (mousePosition.x - stage.x) / stage.virtualScale, y: (mousePosition.y - stage.y)/stage.virtualScale};
+        const worldPos = {x: (mousePosition.x - stage.x) / stage.foreground.getScale(), y: (mousePosition.y - stage.y) / stage.foreground.getScale()};
         
         const newScreenPos = {x: (worldPos.x ) * scale + stage.x, y: (worldPos.y) * scale + stage.y};
         
@@ -39,7 +39,6 @@ export class Zoom implements IGlobalEventsHandler {
         stage.y -= (newScreenPos.y-mousePosition.y) ;
 
         stage.setScale(scale);
-        this.stage.renderStage();
     }
 }
 

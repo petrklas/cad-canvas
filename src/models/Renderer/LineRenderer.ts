@@ -4,6 +4,7 @@ import { RenderableShape } from "@/types/RenderableShape";
 import { Text, TextStyle } from "@pixi/text";
 import Layer from "../Layer";
 import ForegroundLayer from "../ForegroundLayer";
+import { LINE_SCALE_MODE } from '@pixi/graphics-smooth';
 
 export default class LineRenderer extends RenderableShape {
     shape: Line;
@@ -57,7 +58,7 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
-        this.lineStyle(layer.getBorderWidth() / layer.getScale(), layer.getColor(), 1);
+        this.lineStyle({width: layer.getBorderWidth(), color: layer.getColor(), scaleMode: LINE_SCALE_MODE.NONE});
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }

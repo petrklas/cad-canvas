@@ -20,7 +20,7 @@ export default defineComponent({
     const mainCanvas = ref<HTMLDivElement>();
     const store = useUIStateStore();
     const engine = useEngine();
-    const renderer = engine.getRenderer();
+    const renderer = engine.stage.getRenderer();
     const stage = engine.getStage();
     const layerPanelDisplayed = toRef(store, "layerPanelDisplayed");
 

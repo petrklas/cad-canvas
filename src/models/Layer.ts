@@ -40,6 +40,10 @@ export default class Layer extends Container implements ILayer {
     setScale(scale: number): void {
         this.scale.set(scale);
 
+        // we have to re-render all shapes, because when scaling we need to keep the line thickness the same size and not scaled
+        // if we use "native" lineStyle option we don't need to rescale the graphics, but the thickness is always 1px wide
+        // resolved by graphics-smooth extension for pixi, which has setting for not scaling the graphics width with stage scale
+        /*
         for(let i = 0; i < this.children.length; i++) {
             const child:DisplayObject = this.children[i];
             
@@ -47,7 +51,7 @@ export default class Layer extends Container implements ILayer {
                 child.renderShape(this);
             }
             
-        }
+        }*/
     }
 
     getScale(): number {

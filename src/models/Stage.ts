@@ -17,9 +17,9 @@ export default class Stage extends Container {
     mousePosition: MousePosition = new MousePosition();
     readonly onMouseMove: SubEvent<MousePosition> = new SubEvent();
 
-    constructor(renderer: Renderer) {
+    constructor() {
         super();
-        this.renderer = renderer;
+        this.renderer = this.initRenderer();
         this.background.addLayer(new Layer({name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor}), true);
         this.foreground.setCurrentLayer(this.background.getActiveLayer());
         this.addChild(this.background);
@@ -29,6 +29,16 @@ export default class Stage extends Container {
         graphics.lineStyle(3, 0x00BBCC);
         graphics.drawRect(0, 0, 10, 10);
         this.addChild(graphics);
+    }
+
+    initRenderer(): Renderer {
+        return new Renderer({
+            width: 100,
+            height: 100,
+            resolution: window.devicePixelRatio,
+            autoDensity: true,
+            antialias: true,
+        });
     }
 
     // get the coordinates of mouse on canvas and convert them to local coordinates
@@ -66,6 +76,9 @@ export default class Stage extends Container {
         this.renderStage();
     }
        
+    getRenderer(): Renderer {
+        return this.renderer;
+    }
 
     renderStage() {
         const graphics2 = new RenderableShape();

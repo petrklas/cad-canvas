@@ -6,7 +6,7 @@
         :key="item.name"
         v-on:click="$emit('menuItemClicked', item), setActiveMenu(item)"
       >
-        {{ item.name }}
+        {{ item.label }}
       </li>
     </ul>
   </nav>
@@ -15,12 +15,15 @@
 <script lang="ts">
 import { useMenu } from "@/models/Menu";
 import { defineComponent } from "@vue/runtime-core";
+import { MainMenu } from "@/models/MenuItems/TopMenu"
 
 export default defineComponent({
   emits: ["menuItemClicked"],
 
   setup() {
-    const { menuItems, activeMenuItem, setActiveMenu } = useMenu();
+    const { menuItems, activeMenuItem, setActiveMenu } = useMenu([
+      new MainMenu()
+    ]);
     return {
       menuItems,
       activeMenuItem,

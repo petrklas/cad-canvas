@@ -5,7 +5,7 @@
       :key="item.name"
       v-on:click="$emit('menuItemClicked', item), setActiveMenu(item)"
     >
-      {{ item.name }}
+      {{ item.label }}
     </li>
   </ul>
   <ul>
@@ -20,6 +20,7 @@
 import { useMenu } from "@/models/Menu"
 import { useUIStateStore } from "@/store/UIState";
 import { defineComponent, onMounted, toRef } from "@vue/runtime-core";
+import { Line, Rectangle } from "@/models/MenuItems/Tools"
 
 export default defineComponent({
 
@@ -27,7 +28,11 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const store = useUIStateStore();
-    const {menuItems, activeMenuItem, setActiveMenu} = useMenu();
+    
+    const {menuItems, activeMenuItem, setActiveMenu} = useMenu([
+        new Line(),
+        new Rectangle()
+    ]);
     let layerPanelDisplayed = toRef(store, "layerPanelDisplayed");
 
     onMounted(() => {

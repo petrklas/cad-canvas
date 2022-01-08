@@ -1,16 +1,12 @@
 import IMenuItem from "@/types/MenuItem";
-import { Line } from "./MenuItems/Line";
-import { Rectangle } from "./MenuItems/Recangle";
 
 export default class Menu {
-    items: Array<IMenuItem> = [
-        new Line(),
-        new Rectangle(),
-    ];
+    items: Array<IMenuItem> = [];
 
     activeItem: IMenuItem;
 
-    constructor() {
+    constructor(items: Array<IMenuItem>) {
+        this.items = items;
         this.activeItem = this.items[0];
     }
 
@@ -27,9 +23,10 @@ export default class Menu {
     }
 }
 
-const menu = new Menu();
 
-export function useMenu() {
+
+export function useMenu(itemsList: Array<IMenuItem>) {
+    const menu = new Menu(itemsList);
     function setActiveMenu(item: IMenuItem) {
         menu.setActive(item);
     }

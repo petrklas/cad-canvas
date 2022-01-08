@@ -7,18 +7,19 @@ import { Point as PIXIPoint } from "@pixi/math";
 import Point from "@/types/Point";
 import { RenderableShape } from "@/types/RenderableShape";
 import KeyboardShortcut from "../KeyboardShortucts";
+import Stage from "../Stage";
 
 export default class CanvasEventHandler {
-    engine: Engine;
+    stage: Stage;
     eventHandler: IEventsHandler | any;
     private keyboardShortCut: KeyboardShortcut;
     private interactionManager: InteractionManager;
     private previousHandler: IEventsHandler | null = null;
 
-    constructor(engine: Engine) {
-        this.engine = engine;
+    constructor(stage: Stage) {
+        this.stage = stage;
         this.keyboardShortCut = new KeyboardShortcut();
-        this.interactionManager = this.engine.renderer.plugins.interaction
+        this.interactionManager = this.stage.getRenderer().plugins.interaction
     }
 
     setEventHandler(eventHandler: IEventsHandler) {
@@ -36,14 +37,14 @@ export default class CanvasEventHandler {
     handle(event: Event): void {
         // global event
         if (event instanceof WheelEvent) {
-            const zoomHandler = new EventHandlers.Zoom(this.engine.stage);
+            const zoomHandler = new EventHandlers.Zoom(this.stage);
             if (event.deltaY < 0) {
                 zoomHandler.zoomIn(event);
             } else {
                 zoomHandler.zoomOut(event);
             }
         } else if (event instanceof MouseEvent) {
-            this.engine.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
+            this.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
 
             switch (event.button) {
                 case EventButtons.LEFT:
@@ -62,7 +63,7 @@ export default class CanvasEventHandler {
                         case EventTypes.MOUSE_DOWN:
                             // remember the current handler
                             this.previousHandler = this.eventHandler;
-                            this.eventHandler = new EventHandlers.Pan(this.engine.stage);
+                            this.eventHandler = new EventHandlers.Pan(this.stage);
                             this.call('middleClickDown', event);
                             break;
                         case EventTypes.MOUSE_UP:
@@ -113,7 +114,7 @@ export default class CanvasEventHandler {
             }
         }
 
-        this.engine.stage.renderStage();
+        this.stage.renderStage();
     }
 
     call(functionName: string, ...args: any[]): void {
@@ -128,12 +129,12 @@ export default class CanvasEventHandler {
             return;
         }
 
-        const mousePoint = this.engine.stage.mousePosition.absolute;
-        const renderableObject = this.interactionManager.hitTest(new PIXIPoint(mousePoint.x, mousePoint.y), this.engine.stage.background);
+        const mousePoint = this.stage.mousePosition.absolute;
+        const renderableObject = this.interactionManager.hitTest(new PIXIPoint(mousePoint.x, mousePoint.y), this.stage.background);
         if (renderableObject && renderableObject instanceof RenderableShape && renderableObject.shape) {
             const snappers = renderableObject.shape.getSnappers();
             for (let i = 0; i < snappers.length; i++) {
-                if (snappers[i].isSnapPointHovered(this.engine.stage.mousePosition.relative)) {
+                if (snappers[i].isSnapPointHovered(this.stage.mousePosition.relative)) {
                     this.eventHandler.setActiveSnapper(snappers[i]);
                     return;
                 }

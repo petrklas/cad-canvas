@@ -1,5 +1,5 @@
 import Layer from "@/models/Layer";
-import { Graphics } from "@pixi/graphics";
+import { SmoothGraphics as Graphics } from '@pixi/graphics-smooth';
 
 interface IRenderableObject {
     addToLayer(layer: Layer): void;

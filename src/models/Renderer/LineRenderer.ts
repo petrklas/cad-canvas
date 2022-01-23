@@ -4,8 +4,6 @@ import { RenderableShape } from "@/types/RenderableShape";
 import { Text, TextStyle } from "@pixi/text";
 import Layer from "../Layer";
 import ForegroundLayer from "../ForegroundLayer";
-import { LINE_SCALE_MODE } from '@pixi/graphics-smooth';
-
 export default class LineRenderer extends RenderableShape {
     shape: Line;
 
@@ -27,7 +25,8 @@ export default class LineRenderer extends RenderableShape {
             return;
         }
 
-        this.lineStyle(1, 0xaaaaaa, 0.5);
+        //const shader = new DashLineShader({dash: 5, gap: 8});
+        this.lineStyle({width: 1, color: 0xaaaaaa, alpha: 0.5});
         this.moveTo(this.shape.getStart().x, this.shape.getStart().y);
         this.lineTo(this.shape.getStart().x + this.shape.getLength(), this.shape.getStart().y);
 
@@ -58,7 +57,7 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
-        this.lineStyle({width: layer.getBorderWidth(), color: layer.getColor(), scaleMode: LINE_SCALE_MODE.NONE});
+        this.lineStyle({width: layer.getBorderWidth(), color: layer.getColor()});
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }
@@ -67,7 +66,7 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
-        this.lineStyle(layer.getBorderWidth() / layer.getScale() * 2, 0xaa55cc);
+        this.lineStyle(layer.getBorderWidth() * 2, 0xaa55cc);
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }

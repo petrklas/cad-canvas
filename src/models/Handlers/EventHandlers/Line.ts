@@ -64,7 +64,7 @@ export class Line implements IShapeEventsHandler {
             if (this.modifier.isPressed([EventKeys.SHIFT])) {
                 const axisHelper = AxisHelper.getAxisHelper(this.shape.getStart(), mouseRelativePosition);
                 const axisHelperRenderer = axisHelper.getRenderObject();
-                axisHelperRenderer.addToLayer(this.stage.snapLayer);
+                axisHelperRenderer.addToLayer(this.stage.foreground);
                 this.activeHelper = axisHelper;
 
             } else {

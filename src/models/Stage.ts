@@ -8,6 +8,7 @@ import { SubEvent } from "sub-events";
 import Point from "@/types/Point";
 import Container from "./Container";
 import { AppConfig } from "@/config/AppConfig";
+import { LINE_SCALE_MODE, settings } from '@pixi/graphics-smooth';
 
 export default class Stage extends Container {
     foreground: ForegroundLayer = new ForegroundLayer();
@@ -32,6 +33,8 @@ export default class Stage extends Container {
     }
 
     initRenderer(): Renderer {
+        settings.LINE_SCALE_MODE = LINE_SCALE_MODE.NONE; 
+        
         return new Renderer({
             width: 100,
             height: 100,

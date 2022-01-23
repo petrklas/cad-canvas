@@ -12,7 +12,7 @@ export default class CenterSnapperRenderer extends RenderableSnapper {
     }
 
     addToLayer(layer: Layer) {
-        this.lineStyle(AppConfig.snapper.borderWidth / layer.scale.x, AppConfig.snapper.color, 1);
+        this.lineStyle(AppConfig.snapper.borderWidth, AppConfig.snapper.color, 1);
         const offset = AppConfig.snapper.width / 2 / layer.scale.x;
         const centerPoint = this.snapper.getSnapPoint();
 

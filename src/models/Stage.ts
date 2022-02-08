@@ -9,6 +9,8 @@ import Point from "@/types/Point";
 import Container from "./Container";
 import { AppConfig } from "@/config/AppConfig";
 import { LINE_SCALE_MODE, settings } from '@pixi/graphics-smooth';
+import EventBus from "./Events/EventBus";
+
 
 export default class Stage extends Container {
     foreground: ForegroundLayer = new ForegroundLayer();
@@ -17,9 +19,11 @@ export default class Stage extends Container {
     renderer: Renderer;
     mousePosition: MousePosition = new MousePosition();
     readonly onMouseMove: SubEvent<MousePosition> = new SubEvent();
+    eventBus: EventBus;
 
     constructor() {
         super();
+        this.eventBus = new EventBus();
         this.renderer = this.initRenderer();
         this.background.addLayer(new Layer({name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor}), true);
         this.foreground.setCurrentLayer(this.background.getActiveLayer());
@@ -30,6 +34,10 @@ export default class Stage extends Container {
         graphics.lineStyle(3, 0x00BBCC);
         graphics.drawRect(0, 0, 10, 10);
         this.addChild(graphics);
+    }
+
+    getEventBus(): EventBus {
+        return this.eventBus;
     }
 
     initRenderer(): Renderer {

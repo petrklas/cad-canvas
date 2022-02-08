@@ -1,5 +1,5 @@
 import IMenuItem from "@/types/MenuItem";
-import {Rectangle as RectangleHandler} from "@/models/Handlers/EventHandlers/Rectangle";
+import {Rectangle as RectangleHandler} from "@/models/Events/EventHandlers/Rectangle";
 import Stage from "../../Stage";
 
 

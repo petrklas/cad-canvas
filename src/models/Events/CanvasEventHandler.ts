@@ -2,16 +2,17 @@ import { IEventsHandler } from "@/types/EventsHandler";
 import { EventTypes, EventButtons, EventKeys, CustomEvents } from "@/utils/EventTypes";
 import { InteractionManager } from "@pixi/interaction";
 import Engine from "../Engine";
-import * as EventHandlers from "./EventHandlers"
+import * as GlobalEventHandlers from "./EventHandlers/Global"
 import { Point as PIXIPoint } from "@pixi/math";
 import Point from "@/types/Point";
 import { RenderableShape } from "@/types/RenderableShape";
 import KeyboardShortcut from "../KeyboardShortucts";
 import Stage from "../Stage";
+import { IEventHandler } from "@/types/EventHandler";
 
 export default class CanvasEventHandler {
     stage: Stage;
-    eventHandler: IEventsHandler | any;
+    eventHandler: IEventHandler | any;
     private keyboardShortCut: KeyboardShortcut;
     private interactionManager: InteractionManager;
     private previousHandler: IEventsHandler | null = null;
@@ -20,10 +21,21 @@ export default class CanvasEventHandler {
         this.stage = stage;
         this.keyboardShortCut = new KeyboardShortcut();
         this.interactionManager = this.stage.getRenderer().plugins.interaction
+        this.initGlobalEventHandlers();
     }
 
-    setEventHandler(eventHandler: IEventsHandler) {
+    initGlobalEventHandlers() {
+       new GlobalEventHandlers.Zoom(this.stage).registerEvents(this.stage.getEventBus());
+       new GlobalEventHandlers.Pan(this.stage).registerEvents(this.stage.getEventBus());
+    }
+
+    setEventHandler(eventHandler: IEventHandler) {
+        if (this.eventHandler !== undefined) {
+            this.eventHandler.unregisterAllEvents();
+        }
+        
         this.eventHandler = eventHandler;
+        this.eventHandler.registerEvents(this.stage.getEventBus());
 
         if(this.eventHandler.modifier !== "undefined") {
             this.eventHandler.modifier = this.keyboardShortCut;
@@ -37,11 +49,10 @@ export default class CanvasEventHandler {
     handle(event: Event): void {
         // global event
         if (event instanceof WheelEvent) {
-            const zoomHandler = new EventHandlers.Zoom(this.stage);
             if (event.deltaY < 0) {
-                zoomHandler.zoomIn(event);
+                this.stage.getEventBus().dispatch<WheelEvent>('wheelUp', event);
             } else {
-                zoomHandler.zoomOut(event);
+                this.stage.getEventBus().dispatch<WheelEvent>('wheelDown', event);
             }
         } else if (event instanceof MouseEvent) {
             this.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
@@ -50,26 +61,21 @@ export default class CanvasEventHandler {
                 case EventButtons.LEFT:
                     switch (event.type) {
                         case EventTypes.MOUSE_DOWN:
-                            this.call('leftClickDown');
+                            this.stage.getEventBus().dispatch<MouseEvent>('leftClickDown', event);
                             break;
                         case EventTypes.MOUSE_MOVE:
                             this.getPossibleSnappers();
-                            this.call('mouseMove');
+                            this.stage.getEventBus().dispatch<MouseEvent>('mouseMove', event);
                             break;
                     }
                     break;
                 case EventButtons.MIDDLE:
                     switch (event.type) {
                         case EventTypes.MOUSE_DOWN:
-                            // remember the current handler
-                            this.previousHandler = this.eventHandler;
-                            this.eventHandler = new EventHandlers.Pan(this.stage);
-                            this.call('middleClickDown', event);
+                            this.stage.getEventBus().dispatch<MouseEvent>('middleClickDown', event);
                             break;
                         case EventTypes.MOUSE_UP:
-                            this.call('middleClickUp', event);
-                            this.eventHandler = this.previousHandler;
-                            this.previousHandler = null;
+                            this.stage.getEventBus().dispatch<MouseEvent>('middleClickUp', event);
                             break;
                     }
                     break;
@@ -97,8 +103,8 @@ export default class CanvasEventHandler {
                 case EventTypes.KEY_UP:
                     switch (event.key) {
                         case EventKeys.ESC:
+                            this.stage.getEventBus().dispatch<KeyboardEvent>('keyEsc', event);
                             this.keyboardShortCut.removeKey(EventKeys.ESC);
-                            this.call('keyEsc', event);
                             break;
                         case EventKeys.CTRL:
                             this.keyboardShortCut.removeKey(EventKeys.CTRL);
@@ -115,12 +121,6 @@ export default class CanvasEventHandler {
         }
 
         this.stage.renderStage();
-    }
-
-    call(functionName: string, ...args: any[]): void {
-        if (typeof this.eventHandler[functionName] === 'function') {
-            this.eventHandler[functionName](...args);
-        }
     }
 
     // get the object under the cursor and find it's snappers

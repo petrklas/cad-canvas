@@ -10,8 +10,9 @@ import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/KeyboardShortucts";
 import { EventKeys } from "@/utils/EventTypes";
+import { EventHandler, IEvent } from "@/types/EventHandler";
 
-export class Line implements IShapeEventsHandler {
+export class Line extends EventHandler {
     hasStarted = false;
     originPoint: Point = new Point(0, 0);
     stage: Stage;
@@ -21,11 +22,33 @@ export class Line implements IShapeEventsHandler {
     allowSnappers = true;
     modifier: KeyboardShortcut = new KeyboardShortcut();
     readonly onShapeChange: SubEvent<LineShape> = new SubEvent();
+    events: IEvent[] = [
+        {
+            name: 'leftClickDown',
+            handler: () => {
+                this.leftClickDown();
+            }
+        },
+        {
+            name: 'mouseMove',
+            handler: () => {
+                this.mouseMove();
+            }
+        },
+        {
+            name: 'keyEsc',
+            handler: () => {
+                this.keyEsc();
+            }
+        }
+    ];
 
     constructor(stage: Stage) {
+        super();
         this.stage = stage;
         this.shape = new LineShape();
     }
+
 
     setActiveSnapper(snapper: ISnapper) {
         this.activeSnapper = snapper;
@@ -60,7 +83,7 @@ export class Line implements IShapeEventsHandler {
         if (this.hasStarted) {
             this.stage.clearForeground();
             this.shape.setEnd(this.getPointFromCursor(mouseRelativePosition));
-            
+
             if (this.modifier.isPressed([EventKeys.SHIFT])) {
                 const axisHelper = AxisHelper.getAxisHelper(this.shape.getStart(), mouseRelativePosition);
                 const axisHelperRenderer = axisHelper.getRenderObject();
@@ -110,7 +133,7 @@ export class Line implements IShapeEventsHandler {
             snapperRenderer.addToLayer(this.stage.snapLayer);
         } else if (this.stage.snapLayer.children.length > 0) {
             this.stage.clearSnappers();
-            
+
         }
     }
 
@@ -139,7 +162,7 @@ export class Line implements IShapeEventsHandler {
     }
 
 
-    keyEsc(event: KeyboardEvent) {
+    keyEsc() {
         this.reset();
         this.stage.clearForeground();
     }

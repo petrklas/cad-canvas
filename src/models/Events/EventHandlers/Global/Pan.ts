@@ -1,16 +1,37 @@
 
+import { EventHandler, IEvent } from "@/types/EventHandler";
 import { IGlobalEventsHandler } from "@/types/EventsHandler";
 import Point from "@/types/Point";
-import Stage from "../../Stage";
-import Mouse from "../../Mouse";
+import Stage from "../../../Stage";
 
-export class Pan implements IGlobalEventsHandler {
+export class Pan extends EventHandler {
     stage: Stage;
     hasStarted = false;
     lastPoint: Point = new Point(0, 0);
     allowSnappers = false;
+    events: IEvent[] = [
+    {
+        name: 'middleClickDown',
+        handler: () => {
+            this.middleClickDown();
+        }
+    },
+    {
+        name: 'middleClickUp',
+        handler: () => {
+            this.middleClickUp();
+        }
+    },
+    {
+        name: 'mouseMove',
+        handler: () => {
+            this.mouseMove();
+        }
+    },
+    ];
 
     constructor(stage: Stage) {
+        super();
         this.stage = stage;
     }
 

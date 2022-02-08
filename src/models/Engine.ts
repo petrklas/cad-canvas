@@ -1,7 +1,4 @@
-import IMenuItem from "@/types/MenuItem";
-import CanvasEventHandler from "./Handlers/CanvasEventHandler";
-import Menu from "./Menu";
-import Renderer from "./Renderer";
+import CanvasEventHandler from "./Events/CanvasEventHandler";
 import Stage from "./Stage";
 import { inject } from "vue-demi";
 
@@ -12,7 +9,6 @@ export default class Engine {
     constructor() {
         this.stage = new Stage();
         this.handler = new CanvasEventHandler(this.stage);
-
     }
 
     getHandler(): CanvasEventHandler {

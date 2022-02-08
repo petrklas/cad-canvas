@@ -1,5 +1,4 @@
 
-import { IShapeEventsHandler } from "@/types/EventsHandler";
 import Point from "@/types/Point";
 import { Line as LineShape } from "../../Shapes/Line";
 import Stage from "../../Stage";

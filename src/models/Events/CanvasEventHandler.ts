@@ -1,7 +1,5 @@
-import { IEventsHandler } from "@/types/EventsHandler";
-import { EventTypes, EventButtons, EventKeys, CustomEvents } from "@/utils/EventTypes";
+import { EventTypes, EventButtons, EventKeys } from "@/utils/EventTypes";
 import { InteractionManager } from "@pixi/interaction";
-import Engine from "../Engine";
 import * as GlobalEventHandlers from "./EventHandlers/Global"
 import { Point as PIXIPoint } from "@pixi/math";
 import Point from "@/types/Point";
@@ -15,7 +13,6 @@ export default class CanvasEventHandler {
     eventHandler: IEventHandler | any;
     private keyboardShortCut: KeyboardShortcut;
     private interactionManager: InteractionManager;
-    private previousHandler: IEventsHandler | null = null;
 
     constructor(stage: Stage) {
         this.stage = stage;
@@ -42,7 +39,7 @@ export default class CanvasEventHandler {
         }
     }
 
-    getEventHandler(): IEventsHandler {
+    getEventHandler(): IEventHandler {
         return this.eventHandler;
     }
 

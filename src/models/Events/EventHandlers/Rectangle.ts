@@ -1,17 +1,18 @@
 
-import {IShapeEventsHandler} from "@/types/EventsHandler";
 import Stage from "../../Stage";
 import Mouse from "../../Mouse";
 import { IKeyboardShortcut } from "@/types/KeyboardShortcuts";
 import KeyboardShortcut from "@/models/KeyboardShortucts";
+import { EventHandler } from "@/types/EventHandler";
 
 
-export class Rectangle implements IShapeEventsHandler {
+export class Rectangle extends EventHandler {
     stage: Stage;
     allowSnappers = true;
     modifier: IKeyboardShortcut = new KeyboardShortcut();
 
     constructor(stage: Stage) {
+        super();
         this.stage = stage;
     }
 

@@ -1,6 +1,5 @@
 
 import { EventHandler, IEvent } from "@/types/EventHandler";
-import { IGlobalEventsHandler } from "@/types/EventsHandler";
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 

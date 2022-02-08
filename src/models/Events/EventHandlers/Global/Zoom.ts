@@ -1,5 +1,3 @@
-
-import { IGlobalEventsHandler } from "@/types/EventsHandler";
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 import { AppConfig } from "@/config/AppConfig";

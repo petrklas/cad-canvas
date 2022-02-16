@@ -8,7 +8,7 @@ import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/KeyboardShortucts";
-import { EventKeys } from "@/utils/EventTypes";
+import { CustomEvenTypes, EventKeys } from "@/utils/EventTypes";
 import { EventHandler, IEvent } from "@/types/EventHandler";
 
 export class Line extends EventHandler {
@@ -23,19 +23,19 @@ export class Line extends EventHandler {
     readonly onShapeChange: SubEvent<LineShape> = new SubEvent();
     events: IEvent[] = [
         {
-            name: 'leftClickDown',
+            name: CustomEvenTypes.MOUSE_DOWN_LEFT,
             handler: () => {
                 this.leftClickDown();
             }
         },
         {
-            name: 'mouseMove',
+            name: CustomEvenTypes.MOUSE_POSITION_UPDATE,
             handler: () => {
                 this.mouseMove();
             }
         },
         {
-            name: 'keyEsc',
+            name: CustomEvenTypes.KEY_ESC,
             handler: () => {
                 this.keyEsc();
             }
@@ -76,8 +76,6 @@ export class Line extends EventHandler {
 
     mouseMove(): void {
         const mouseRelativePosition = this.stage.mousePosition.relative;
-        //const mouseRelativePosition = mouse.getAbsolutePosition();
-        this.renderSnappers();
 
         if (this.hasStarted) {
             this.stage.clearForeground();
@@ -125,16 +123,6 @@ export class Line extends EventHandler {
         }
     }
 
-    private renderSnappers() {
-        if (this.activeSnapper) {
-            this.stage.clearSnappers();
-            const snapperRenderer = this.activeSnapper.getRenderObject();
-            snapperRenderer.addToLayer(this.stage.snapLayer);
-        } else if (this.stage.snapLayer.children.length > 0) {
-            this.stage.clearSnappers();
-
-        }
-    }
 
     /**
      * Get the current point - consider snappers and helpers
@@ -144,12 +132,9 @@ export class Line extends EventHandler {
      */
     private getPointFromCursor(mouseCursor: Point): Point {
         let endPoint = new Point(0, 0);
-        // we need to snap to snapper
-        if (this.activeSnapper) {
-            endPoint = this.activeSnapper.getSnapPoint();
-        }
+
         // we need to snap to helper (change the coordinates of lineTo)
-        else if (this.activeHelper) {
+        if (this.activeHelper) {
             endPoint = this.activeHelper!.getSnapPoint(mouseCursor);
         }
         // draw normal line no snapping  needed

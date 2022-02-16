@@ -2,19 +2,19 @@ import Point from "@/types/Point";
 import Stage from "../../../Stage";
 import { AppConfig } from "@/config/AppConfig";
 import { EventHandler, IEvent } from "@/types/EventHandler";
+import { CustomEvenTypes } from "@/utils/EventTypes";
 
 export class Zoom extends EventHandler {
     stage: Stage;
-    allowSnappers = false;
     events: IEvent[] = [
     {
-        name: 'wheelUp',
+        name: CustomEvenTypes.WHEEL_UP,
         handler: (event: MouseEvent) => {
             this.zoomIn(event);
         }
     },
     {
-        name: 'wheelDown',
+        name: CustomEvenTypes.WHEEL_DOWN,
         handler: (event: MouseEvent) => {
             this.zoomOut(event);
         }

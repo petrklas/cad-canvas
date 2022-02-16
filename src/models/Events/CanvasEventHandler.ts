@@ -1,9 +1,5 @@
-import { EventTypes, EventButtons, EventKeys } from "@/utils/EventTypes";
-import { InteractionManager } from "@pixi/interaction";
+import { GlobalEvenTypes, CustomEvenTypes, EventButtons, EventKeys } from "@/utils/EventTypes";
 import * as GlobalEventHandlers from "./EventHandlers/Global"
-import { Point as PIXIPoint } from "@pixi/math";
-import Point from "@/types/Point";
-import { RenderableShape } from "@/types/RenderableShape";
 import KeyboardShortcut from "../KeyboardShortucts";
 import Stage from "../Stage";
 import { IEventHandler } from "@/types/EventHandler";
@@ -12,18 +8,18 @@ export default class CanvasEventHandler {
     stage: Stage;
     eventHandler: IEventHandler | any;
     private keyboardShortCut: KeyboardShortcut;
-    private interactionManager: InteractionManager;
 
     constructor(stage: Stage) {
         this.stage = stage;
         this.keyboardShortCut = new KeyboardShortcut();
-        this.interactionManager = this.stage.getRenderer().plugins.interaction
         this.initGlobalEventHandlers();
     }
 
     initGlobalEventHandlers() {
        new GlobalEventHandlers.Zoom(this.stage).registerEvents(this.stage.getEventBus());
        new GlobalEventHandlers.Pan(this.stage).registerEvents(this.stage.getEventBus());
+       new GlobalEventHandlers.MouseMove(this.stage).registerEvents(this.stage.getEventBus());
+       new GlobalEventHandlers.Snapper(this.stage).registerEvents(this.stage.getEventBus());
     }
 
     setEventHandler(eventHandler: IEventHandler) {
@@ -47,32 +43,29 @@ export default class CanvasEventHandler {
         // global event
         if (event instanceof WheelEvent) {
             if (event.deltaY < 0) {
-                this.stage.getEventBus().dispatch<WheelEvent>('wheelUp', event);
+                this.stage.getEventBus().dispatch<WheelEvent>(CustomEvenTypes.WHEEL_UP, event);
             } else {
-                this.stage.getEventBus().dispatch<WheelEvent>('wheelDown', event);
+                this.stage.getEventBus().dispatch<WheelEvent>(CustomEvenTypes.WHEEL_DOWN, event);
             }
         } else if (event instanceof MouseEvent) {
-            this.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
-
             switch (event.button) {
                 case EventButtons.LEFT:
                     switch (event.type) {
-                        case EventTypes.MOUSE_DOWN:
-                            this.stage.getEventBus().dispatch<MouseEvent>('leftClickDown', event);
+                        case GlobalEvenTypes.MOUSE_DOWN:
+                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_LEFT, event);
                             break;
-                        case EventTypes.MOUSE_MOVE:
-                            this.getPossibleSnappers();
-                            this.stage.getEventBus().dispatch<MouseEvent>('mouseMove', event);
+                        case GlobalEvenTypes.MOUSE_MOVE:
+                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
                             break;
                     }
                     break;
                 case EventButtons.MIDDLE:
                     switch (event.type) {
-                        case EventTypes.MOUSE_DOWN:
-                            this.stage.getEventBus().dispatch<MouseEvent>('middleClickDown', event);
+                        case GlobalEvenTypes.MOUSE_DOWN:
+                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_MIDDLE, event);
                             break;
-                        case EventTypes.MOUSE_UP:
-                            this.stage.getEventBus().dispatch<MouseEvent>('middleClickUp', event);
+                        case GlobalEvenTypes.MOUSE_UP:
+                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_MIDDLE, event);
                             break;
                     }
                     break;
@@ -81,7 +74,7 @@ export default class CanvasEventHandler {
 
         } else if (event instanceof KeyboardEvent) {
             switch (event.type) {
-                case EventTypes.KEY_DOWN:
+                case GlobalEvenTypes.KEY_DOWN:
                     switch (event.key) {
                         case EventKeys.ESC:
                             this.keyboardShortCut.addKey(EventKeys.ESC);
@@ -97,10 +90,10 @@ export default class CanvasEventHandler {
                             break;
                     }
                     break;
-                case EventTypes.KEY_UP:
+                case GlobalEvenTypes.KEY_UP:
                     switch (event.key) {
                         case EventKeys.ESC:
-                            this.stage.getEventBus().dispatch<KeyboardEvent>('keyEsc', event);
+                            this.stage.getEventBus().dispatch<KeyboardEvent>(CustomEvenTypes.KEY_ESC, event);
                             this.keyboardShortCut.removeKey(EventKeys.ESC);
                             break;
                         case EventKeys.CTRL:
@@ -118,26 +111,5 @@ export default class CanvasEventHandler {
         }
 
         this.stage.renderStage();
-    }
-
-    // get the object under the cursor and find it's snappers
-    getPossibleSnappers(): void {
-        if (!this.eventHandler.allowSnappers) {
-            return;
-        }
-
-        const mousePoint = this.stage.mousePosition.absolute;
-        const renderableObject = this.interactionManager.hitTest(new PIXIPoint(mousePoint.x, mousePoint.y), this.stage.background);
-        if (renderableObject && renderableObject instanceof RenderableShape && renderableObject.shape) {
-            const snappers = renderableObject.shape.getSnappers();
-            for (let i = 0; i < snappers.length; i++) {
-                if (snappers[i].isSnapPointHovered(this.stage.mousePosition.relative)) {
-                    this.eventHandler.setActiveSnapper(snappers[i]);
-                    return;
-                }
-            }
-        }
-
-        this.eventHandler.setActiveSnapper(null);
     }
 }

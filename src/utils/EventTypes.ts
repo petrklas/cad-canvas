@@ -1,9 +1,21 @@
-export const EventTypes = {
+export const GlobalEvenTypes = {
   MOUSE_DOWN: "mousedown",
   MOUSE_UP: "mouseup",
   MOUSE_MOVE: "mousemove",
   KEY_UP: "keyup",
   KEY_DOWN: "keydown",
+};
+
+export const CustomEvenTypes = {
+  MOUSE_DOWN_LEFT: "mousedownleft",
+  MOUSE_UP_LEFT: "mouseupleft",
+  MOUSE_DOWN_MIDDLE: "mousedownmiddle",
+  MOUSE_UP_MIDDLE: "mouseupmiddle",
+  MOUSE_MOVE: "mousemove",
+  KEY_ESC: "keyesc",
+  MOUSE_POSITION_UPDATE: "mousepositionupdate",
+  WHEEL_UP: "wheelup",
+  WHEEL_DOWN: "wheeldown",
 };
 
 export const EventButtons = {

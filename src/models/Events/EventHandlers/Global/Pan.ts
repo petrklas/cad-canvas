@@ -1,5 +1,6 @@
 
 import { EventHandler, IEvent } from "@/types/EventHandler";
+import { CustomEvenTypes } from "@/utils/EventTypes";
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 
@@ -7,22 +8,21 @@ export class Pan extends EventHandler {
     stage: Stage;
     hasStarted = false;
     lastPoint: Point = new Point(0, 0);
-    allowSnappers = false;
     events: IEvent[] = [
     {
-        name: 'middleClickDown',
+        name: CustomEvenTypes.MOUSE_DOWN_MIDDLE,
         handler: () => {
             this.middleClickDown();
         }
     },
     {
-        name: 'middleClickUp',
+        name: CustomEvenTypes.MOUSE_UP_MIDDLE,
         handler: () => {
             this.middleClickUp();
         }
     },
     {
-        name: 'mouseMove',
+        name: CustomEvenTypes.MOUSE_MOVE,
         handler: () => {
             this.mouseMove();
         }

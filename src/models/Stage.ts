@@ -4,12 +4,13 @@ import Renderer from "./Renderer";
 import { RenderableShape } from "@/types/RenderableShape";
 import ForegroundLayer from "./ForegroundLayer";
 import MousePosition from "./Mouse";
-import { SubEvent } from "sub-events";
 import Point from "@/types/Point";
 import Container from "./Container";
 import { AppConfig } from "@/config/AppConfig";
 import { LINE_SCALE_MODE, settings } from '@pixi/graphics-smooth';
 import EventBus from "./Events/EventBus";
+import ICommand from "@/types/Command";
+import { CustomEvenTypes } from "@/utils/EventTypes";
 
 
 export default class Stage extends Container {
@@ -18,14 +19,14 @@ export default class Stage extends Container {
     snapLayer: Layer = new Layer();
     renderer: Renderer;
     mousePosition: MousePosition = new MousePosition();
-    readonly onMouseMove: SubEvent<MousePosition> = new SubEvent();
     eventBus: EventBus;
+    stageHistory: StageHistory = new StageHistory();
 
     constructor() {
         super();
         this.eventBus = new EventBus();
         this.renderer = this.initRenderer();
-        this.background.addLayer(new Layer({name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor}), true);
+        this.background.addLayer(new Layer({ name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor }), true);
         this.foreground.setCurrentLayer(this.background.getActiveLayer());
         this.addChild(this.background);
         this.addLayer(this.foreground, true);
@@ -40,9 +41,13 @@ export default class Stage extends Container {
         return this.eventBus;
     }
 
+    getStageHistory(): StageHistory {
+        return this.stageHistory;
+    }
+
     initRenderer(): Renderer {
-        settings.LINE_SCALE_MODE = LINE_SCALE_MODE.NONE; 
-        
+        settings.LINE_SCALE_MODE = LINE_SCALE_MODE.NONE;
+
         return new Renderer({
             width: 100,
             height: 100,
@@ -53,10 +58,9 @@ export default class Stage extends Container {
     }
 
     // get the coordinates of mouse on canvas and convert them to local coordinates
-    setMousePosition(absolutePosition: Point) {
+    setMousePosition(absolutePosition: Point): void {
         this.mousePosition.absolute = absolutePosition;
         this.mousePosition.relative = this.background.getActiveLayer().toLocal(absolutePosition);
-        this.onMouseMove.emit(this.mousePosition);
     }
 
     addToForeground(displayObject: RenderableObject): void {
@@ -70,10 +74,10 @@ export default class Stage extends Container {
     clearForeground() {
         this.foreground.removeChildren();
     }
-    
+
     setScale(scale: number): void {
         super.setScale(scale);
-        this.background.setScale(scale);    
+        this.background.setScale(scale);
     }
 
     clearSnappers() {
@@ -86,16 +90,65 @@ export default class Stage extends Container {
         this.y = Math.round(height / 2);
         this.renderStage();
     }
-       
+
     getRenderer(): Renderer {
         return this.renderer;
     }
 
+    undo(): void {
+        this.stageHistory.undo();
+        this.renderStage();
+    }
+
+    redo(): void {
+        this.stageHistory.redo();
+        this.renderStage();
+    }
+
     renderStage() {
-        const graphics2 = new RenderableShape();
-        graphics2.lineStyle(3, 0xAA00CC);
-        graphics2.drawRect(-20, -20, 10, 10);
-        this.foreground.addChild(graphics2);
         this.renderer.render(this);
+    }
+}
+
+class StageHistory {
+    commands: ICommand[] = [];
+    currentCommandIndex = -1;
+
+    addCommand(command: ICommand): void {
+        this.commands.push(command);
+        command.execute();
+        this.currentCommandIndex++;
+        const eventBus = EventBus.getInstance();
+        eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, command);
+    }
+
+    undo(): void {
+        if (this.isUndoPossible()) {
+            this.commands[this.currentCommandIndex].undo();
+            const eventBus = EventBus.getInstance();
+            eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, this.commands[this.currentCommandIndex]);
+            this.currentCommandIndex--;
+        }
+    }
+
+    redo(): void {
+        if (this.isRedoPossible()) {
+            const index = this.currentCommandIndex + 1;
+            this.commands[index].execute();
+            console.log(this.commands[index]);
+            const eventBus = EventBus.getInstance();
+            eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, this.commands[index]);
+            this.currentCommandIndex++;
+        }
+    }
+
+    isRedoPossible(): boolean {
+        const index = this.currentCommandIndex + 1;
+        console.log(index);
+        return (index in this.commands);
+    }
+
+    isUndoPossible(): boolean {
+        return (this.currentCommandIndex > -1);
     }
 }

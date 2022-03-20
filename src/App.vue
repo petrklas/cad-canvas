@@ -7,6 +7,7 @@
       <div class="top-menu-container" id="file">
         Untitled Document
       </div>
+      <span class="back" v-on:click="undo" v-if="isUndoPossible">Undo</span> / <span class="back" v-on:click="redo" v-if="isRedoPossible">Redo</span>
       <div class="top-menu-container" id="scale">
         <Scale />
       </div>
@@ -20,10 +21,8 @@
       </div>
       <div id="main-canvas">
         <Canvas />
-      </div>
+      </div> 
       <div id="item-property">
-        Background: [{{ Math.floor(store.mousePosition.x) }} x
-        {{ Math.floor(store.mousePosition.y) }}]<br />
         <keep-alive>
           <component :is="toolProperty" v-if="toolProperty != ''"></component>
         </keep-alive>
@@ -42,6 +41,7 @@ import Canvas from "./components/Canvas.vue";
 import { useEngine } from "./models/Engine";
 import IMenuItem from "./types/MenuItem";
 import { useUIStateStore } from "./store/UIState";
+import { useStageHistory } from "./models/Composables/useStageHistory"
 
 export default defineComponent({
   name: "App",
@@ -54,18 +54,23 @@ export default defineComponent({
     const store = useUIStateStore();
     const engine = useEngine();
     const toolProperty = ref('');
+    const {undo, redo, isUndoPossible, isRedoPossible} = useStageHistory(engine.getStage());
 
     return {
       engine,
       store,
-      toolProperty
+      toolProperty,
+      undo,
+      redo,
+      isUndoPossible,
+      isRedoPossible
     };
   },
   methods: {
     menuItemClicked(item: IMenuItem) {
       this.engine.handler.setEventHandler(item.getHandler(this.engine.stage));
       this.toolProperty = 'LineProperty';
-    },
+    }
   },
 });
 </script>
@@ -114,5 +119,6 @@ export default defineComponent({
 
 #main-canvas {
   flex: 1 1 300px;
+  position: relative;
 }
 </style>

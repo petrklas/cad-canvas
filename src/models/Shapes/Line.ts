@@ -4,14 +4,25 @@ import { CenterSnapper, EndPointSnapper } from "../Snappers/Snappers";
 import { ILineShape } from "@/types/Shape";
 import LineRenderer from "../Renderer/LineRenderer";
 import { Angle, getLineAngle, getLineLength, getEndpointFromLengthAndAngle } from "@/utils/Math";
+import { IShapeColorType } from "@/types/Color";
+import { ILayer } from "@/types/Layer";
+import Layer from "../Layer";
+import { Inherited } from "@/types/Inherited";
+import { IShapeBorder } from "@/types/Border";
 
 export class Line implements ILineShape {
     private start: Point = new Point(0, 0);
     private end: Point = new Point(0, 0);
     length = 0;
-    angle: Angle = new Angle(0);
+    rotation: Angle = new Angle(0);
     center: Point = new Point(0, 0);
     hitArea: Polygon | null = null;
+    border: IShapeBorder = {color: "inherited", thickness: "inherited"};
+    layer: Layer;
+
+    constructor(layer: Layer) {
+        this.layer = layer;
+    }
 
     setStart(start: Point) {
         this.start = start;
@@ -33,7 +44,7 @@ export class Line implements ILineShape {
 
     calcValues() {
         this.center = new Point((this.end.x + this.start.x) / 2, (this.end.y + this.start.y) / 2);
-        this.angle = getLineAngle(this.start, this.end);
+        this.rotation = getLineAngle(this.start, this.end);
         this.length = getLineLength(this.start, this.end);
     }
 
@@ -84,7 +95,7 @@ export class Line implements ILineShape {
     }
 
     getAngle(): Angle {
-        return this.angle;
+        return this.rotation;
     }
 
     getLength(): number {
@@ -92,7 +103,7 @@ export class Line implements ILineShape {
     }
 
     setLength(length: number) {
-        const endpoint = getEndpointFromLengthAndAngle(this.start, length, this.angle);
+        const endpoint = getEndpointFromLengthAndAngle(this.start, length, this.rotation);
         this.setEnd(endpoint);
     }
 
@@ -114,5 +125,9 @@ export class Line implements ILineShape {
 
     getRenderObject(): LineRenderer {
         return new LineRenderer(this);
+    }
+
+    render() {
+        //this.getRenderObject().addToLayer();
     }
 }

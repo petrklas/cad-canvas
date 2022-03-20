@@ -1,7 +1,7 @@
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 import { EventHandler, IEvent } from "@/types/EventHandler";
-import { CustomEvenTypes } from "@/utils/EventTypes";
+import { CustomEvenTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
 
 export class MouseMove extends EventHandler {
     stage: Stage;
@@ -22,7 +22,9 @@ export class MouseMove extends EventHandler {
 
     private mouseMove(event: MouseEvent): void {
         this.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
-        this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_POSITION_UPDATE, event);
+        const mouseMoveRelativeEvent = new MouseMoveRelativeEvent();
+        mouseMoveRelativeEvent.relativeOffset = this.stage.mousePosition.getRelativePosition();
+        this.eventBus.dispatch<MouseMoveRelativeEvent>(CustomEvenTypes.MOUSE_POSITION_UPDATE, mouseMoveRelativeEvent);
     }
 }
 

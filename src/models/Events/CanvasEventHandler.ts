@@ -3,6 +3,7 @@ import * as GlobalEventHandlers from "./EventHandlers/Global"
 import KeyboardShortcut from "../KeyboardShortucts";
 import Stage from "../Stage";
 import { IEventHandler } from "@/types/EventHandler";
+import EventBus from "./EventBus";
 
 export default class CanvasEventHandler {
     stage: Stage;
@@ -15,20 +16,22 @@ export default class CanvasEventHandler {
         this.initGlobalEventHandlers();
     }
 
-    initGlobalEventHandlers() {
-       new GlobalEventHandlers.Zoom(this.stage).registerEvents(this.stage.getEventBus());
-       new GlobalEventHandlers.Pan(this.stage).registerEvents(this.stage.getEventBus());
-       new GlobalEventHandlers.MouseMove(this.stage).registerEvents(this.stage.getEventBus());
-       new GlobalEventHandlers.Snapper(this.stage).registerEvents(this.stage.getEventBus());
+    initGlobalEventHandlers(): void {
+        const eventBus = EventBus.getInstance();
+       new GlobalEventHandlers.Zoom(this.stage).registerEvents(eventBus);
+       new GlobalEventHandlers.Pan(this.stage).registerEvents(eventBus);
+       new GlobalEventHandlers.MouseMove(this.stage).registerEvents(eventBus);
+       new GlobalEventHandlers.Snapper(this.stage).registerEvents(eventBus);
     }
 
     setEventHandler(eventHandler: IEventHandler) {
+        const eventBus = EventBus.getInstance();
         if (this.eventHandler !== undefined) {
             this.eventHandler.unregisterAllEvents();
         }
         
         this.eventHandler = eventHandler;
-        this.eventHandler.registerEvents(this.stage.getEventBus());
+        this.eventHandler.registerEvents(eventBus);
 
         if(this.eventHandler.modifier !== "undefined") {
             this.eventHandler.modifier = this.keyboardShortCut;
@@ -40,32 +43,33 @@ export default class CanvasEventHandler {
     }
 
     handle(event: Event): void {
+        const eventBus = EventBus.getInstance();
         // global event
         if (event instanceof WheelEvent) {
             if (event.deltaY < 0) {
-                this.stage.getEventBus().dispatch<WheelEvent>(CustomEvenTypes.WHEEL_UP, event);
+                eventBus.dispatch<WheelEvent>(CustomEvenTypes.WHEEL_UP, event);
             } else {
-                this.stage.getEventBus().dispatch<WheelEvent>(CustomEvenTypes.WHEEL_DOWN, event);
+                eventBus.dispatch<WheelEvent>(CustomEvenTypes.WHEEL_DOWN, event);
             }
         } else if (event instanceof MouseEvent) {
             switch (event.button) {
                 case EventButtons.LEFT:
                     switch (event.type) {
                         case GlobalEvenTypes.MOUSE_DOWN:
-                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_LEFT, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_LEFT, event);
                             break;
                         case GlobalEvenTypes.MOUSE_MOVE:
-                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
                             break;
                     }
                     break;
                 case EventButtons.MIDDLE:
                     switch (event.type) {
                         case GlobalEvenTypes.MOUSE_DOWN:
-                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_MIDDLE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_MIDDLE, event);
                             break;
                         case GlobalEvenTypes.MOUSE_UP:
-                            this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_MIDDLE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_MIDDLE, event);
                             break;
                     }
                     break;
@@ -93,7 +97,7 @@ export default class CanvasEventHandler {
                 case GlobalEvenTypes.KEY_UP:
                     switch (event.key) {
                         case EventKeys.ESC:
-                            this.stage.getEventBus().dispatch<KeyboardEvent>(CustomEvenTypes.KEY_ESC, event);
+                            eventBus.dispatch<KeyboardEvent>(CustomEvenTypes.KEY_ESC, event);
                             this.keyboardShortCut.removeKey(EventKeys.ESC);
                             break;
                         case EventKeys.CTRL:

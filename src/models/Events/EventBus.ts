@@ -3,6 +3,7 @@ import { IEventBus, Registry, Subscriber } from "@/types/EventBus";
  export default class EventBus implements IEventBus {
     private subscribers: Subscriber;
     private static nextId = 0;
+    private static instance?: EventBus = undefined;
   
     constructor() {
       this.subscribers = {};
@@ -35,5 +36,13 @@ import { IEventBus, Registry, Subscriber } from "@/types/EventBus";
   
     private getNextId(): number {
       return EventBus.nextId++;
+    }
+
+    public static getInstance(): EventBus {
+      if (this.instance === undefined) {
+        this.instance = new EventBus();
+      }
+  
+      return this.instance;
     }
   }

@@ -26,7 +26,7 @@ export default class LineRenderer extends RenderableShape {
         }
 
         //const shader = new DashLineShader({dash: 5, gap: 8});
-        this.lineStyle({width: 1, color: 0xaaaaaa, alpha: 0.5});
+        this.lineStyle({ width: 1, color: 0xaaaaaa, alpha: 0.5 });
         this.moveTo(this.shape.getStart().x, this.shape.getStart().y);
         this.lineTo(this.shape.getStart().x + this.shape.getLength(), this.shape.getStart().y);
 
@@ -57,7 +57,14 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
-        this.lineStyle({width: layer.getBorderWidth(), color: layer.getColor()});
+
+        if (this.shape.layer instanceof ForegroundLayer) {
+            this.showAngleHelper();
+        } else {
+            this.setInteractive();
+        }
+
+        this.lineStyle({ width: layer.getBorderWidth(), color: layer.getColor() });
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }
@@ -71,21 +78,19 @@ export default class LineRenderer extends RenderableShape {
         this.lineTo(end.x, end.y);
     }
 
-    addToLayer(layer: Layer | ForegroundLayer) {
-        //console.log(this.shape.getStart());
-        //console.log(this.shape.getStart());
-        //const start = layer.toLocal(this.shape.getStart());
-        //const end = layer.toLocal(this.shape.getEnd());
-        this.renderShape(layer);
+    addToLayer() {
+        this.renderShape(this.shape.layer);
 
         // do not add event listeners for already drawing shape
-        if (!(layer instanceof ForegroundLayer)) {
-            this.on('pointerover', this.hoverShape.bind(this, layer))
-                .on('pointerout', this.renderShape.bind(this, layer));
+        if (!(this.shape.layer instanceof ForegroundLayer)) {
+            this.on('pointerover', this.hoverShape.bind(this, this.shape.layer))
+                .on('pointerout', this.renderShape.bind(this, this.shape.layer));
         }
 
-        //this.pivot.set(start.x, start.y);  
-        //this.position.set(start.x, start.y);
-        layer.addShape(this);
+        this.shape.layer.addShape(this);
+    }
+
+    removeFromLayer() {
+        this.destroy();
     }
 }

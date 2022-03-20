@@ -17,6 +17,11 @@ export interface IEventHandler {
 export abstract class EventHandler implements IEventHandler{
     registry: Array<Registry> = [];
     events: Array<IEvent> = [];
+    eventBus: EventBus;
+
+    constructor() {
+        this.eventBus = EventBus.getInstance();
+    }
 
     registerEvents(eventBus: EventBus): void {
         for (const event of this.events) {

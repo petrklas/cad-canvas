@@ -1,5 +1,5 @@
 <template>
-  <div class="scale-chooser">Scale: {{ Math.floor(store.scale * 100) }} %,</div>
+  <div class="scale-chooser">Scale: {{ Math.round(store.scale * 100) }} %,</div>
 </template>
 
 <script lang="ts">

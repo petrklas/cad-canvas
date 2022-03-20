@@ -3,19 +3,18 @@ import Point from "@/types/Point";
 import { Line as LineShape } from "../../Shapes/Line";
 import Stage from "../../Stage";
 import { AxisHelper } from "../../Snappers/Helpers"
-import { ISnapper } from "@/types/Snapper";
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/KeyboardShortucts";
 import { CustomEvenTypes, EventKeys } from "@/utils/EventTypes";
 import { EventHandler, IEvent } from "@/types/EventHandler";
+import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
 
 export class Line extends EventHandler {
     hasStarted = false;
     originPoint: Point = new Point(0, 0);
     stage: Stage;
-    activeSnapper: ISnapper | null = null;
     activeHelper: IHelper | null = null;
     shape: LineShape;
     allowSnappers = true;
@@ -45,33 +44,33 @@ export class Line extends EventHandler {
     constructor(stage: Stage) {
         super();
         this.stage = stage;
-        this.shape = new LineShape();
+        this.shape = new LineShape(this.stage.foreground);
     }
 
-
-    setActiveSnapper(snapper: ISnapper) {
-        this.activeSnapper = snapper;
-    }
 
     leftClickDown(): void {
         const mouseRelativePosition = this.stage.mousePosition.relative;
-        //const mouseRelativePosition = mouse.getAbsolutePosition();
+
         if (!this.hasStarted) {
-            this.shape = new LineShape();
-            this.shape.setStart(this.getPointFromCursor(mouseRelativePosition));
+            this.startNewShape(this.getPointFromCursor(mouseRelativePosition));
             this.hasStarted = true;
         } else {
             const endPoint = this.getPointFromCursor(mouseRelativePosition);
             this.shape.setEnd(endPoint);
-            const lineRObject = this.shape.getRenderObject();
-            lineRObject.addToLayer(this.stage.background.getActiveLayer())
-            lineRObject.setInteractive();
+            this.shape.layer = this.stage.background.getActiveLayer();
+            
+            const drawCommand = new DrawLineCommand(this.shape);
+            this.stage.getStageHistory().addCommand(drawCommand);
 
             // continue new shape immediately
             const end = this.shape.getEnd();
-            this.shape = new LineShape();
-            this.shape.setStart(end);
+            this.startNewShape(end);
         }
+    }
+
+    private startNewShape(start: Point) {
+        this.shape = new LineShape(this.stage.foreground);
+        this.shape.setStart(start);
     }
 
     mouseMove(): void {
@@ -91,10 +90,8 @@ export class Line extends EventHandler {
                 this.activeHelper = null;
             }
 
-
-            const lineRObject = this.shape.getRenderObject();
-            lineRObject.addToLayer(this.stage.foreground)
-            lineRObject.showAngleHelper();
+            const drawCommand = new DrawLineCommand(this.shape);
+            drawCommand.execute();
             this.onShapeChange.emit(this.shape);
         }
     }
@@ -109,17 +106,16 @@ export class Line extends EventHandler {
                 this.shape.setLength(data.length);
             }
 
-            if (data.angle) {
-                this.shape.setAngle(data.angle)
+            if (data.rotation) {
+                this.shape.setAngle(data.rotation)
             }
 
-            const lineRObject = this.shape.getRenderObject();
-            lineRObject.addToLayer(this.stage.background.getActiveLayer());
-            lineRObject.setInteractive();
+            this.shape.layer = this.stage.background.getActiveLayer();
+            const drawCommand = new DrawLineCommand(this.shape);
+            this.stage.getStageHistory().addCommand(drawCommand);
             // continue new shape immediately
             const end = this.shape.getEnd();
-            this.shape = new LineShape();
-            this.shape.setStart(end);
+            this.startNewShape(end);
         }
     }
 
@@ -153,6 +149,6 @@ export class Line extends EventHandler {
 
     reset() {
         this.hasStarted = false;
-        this.shape = new LineShape();
+        this.shape = new LineShape(this.stage.foreground);
     }
 }

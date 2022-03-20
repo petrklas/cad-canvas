@@ -1,3 +1,5 @@
+import Point from "@/types/Point";
+
 export const GlobalEvenTypes = {
   MOUSE_DOWN: "mousedown",
   MOUSE_UP: "mouseup",
@@ -16,6 +18,7 @@ export const CustomEvenTypes = {
   MOUSE_POSITION_UPDATE: "mousepositionupdate",
   WHEEL_UP: "wheelup",
   WHEEL_DOWN: "wheeldown",
+  CANVAS_COMMAND_PERFORMED: "commandAdded",
 };
 
 export const EventButtons = {
@@ -33,4 +36,8 @@ export const enum EventKeys {
 
 export const CustomEvents = {
   LENGTH: 'length'
+}
+
+export class MouseMoveRelativeEvent {
+    relativeOffset = new Point(0, 0);
 }

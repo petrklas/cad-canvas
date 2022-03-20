@@ -5,7 +5,9 @@
         v-on:mousedown="handleEvent"
         v-on:mouseup="handleEvent"
         @wheel.prevent="wheelEvent"
-      ></div>
+      >
+      </div>
+      <Coordinates />
 </template>
 
 <script lang="ts">
@@ -13,8 +15,10 @@ import { defineComponent, provide, ref, onMounted, onUnmounted, toRef } from "vu
 import { useEngine } from "@/models/Engine";
 import * as PIXI from "pixi.js";
 import { useUIStateStore } from "@/store/UIState";
+import Coordinates from "./Coordinates.vue";
 
 export default defineComponent({
+  components: { Coordinates },
   name: "Canvas",
   setup() {
     const mainCanvas = ref<HTMLDivElement>();
@@ -74,7 +78,6 @@ export default defineComponent({
 
     mouseMove(event: MouseEvent) {
       this.engine.handler.handle(event);
-      this.store.mousePosition = this.engine.stage.mousePosition.relative;
     },
 
     wheelEvent(event: WheelEvent) {

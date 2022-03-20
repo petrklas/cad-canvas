@@ -6,16 +6,14 @@
         type="text"
         v-model="shapeProperties.length"
         ref="lengthsetter"
-        @change="lengthSet = true"
       />
     </div>
     <div>
-      <u>A</u>ngle:
+      <u>R</u>otation:
       <input
         type="text"
-        v-model="angle"
-        ref="anglesetter"
-        @change="angleSet = true"
+        v-model="rotation"
+        ref="rotationsetter"
       />
     </div>
     <button type="submit" v-on:click.prevent="onEnterPress">Set</button>
@@ -40,13 +38,11 @@ export default defineComponent({
   setup() {
     const shapeProperties = reactive<ILineShapeFormProperties>({
       length: 0,
-      angle: new Angle(0),
+      rotation: new Angle(0),
     });
 
     const lengthsetter = ref();
-    const anglesetter = ref();
-    const lengthSet = ref(false);
-    const angleSet = ref(false);
+    const rotationsetter = ref();
     const engine = inject<Engine>("engine");
 
     if(engine === undefined) {
@@ -55,24 +51,24 @@ export default defineComponent({
 
     const handler = engine.handler.eventHandler;
     handler.onShapeChange.subscribe((shape: Line) => {
-      shapeProperties.angle = shape.angle;
+      shapeProperties.rotation = shape.rotation;
       shapeProperties.length = shape.length;
       lengthsetter.value.select();
     });
 
     const angleEventListener = (e: KeyboardEvent) => {
-      if (e.key === "a" && (e.altKey || e.metaKey)) {
+      if (e.key === "l" && (e.altKey || e.metaKey)) {
         e.preventDefault(); // present "Save Page" from getting triggered.
 
-        anglesetter.value.select();
+        lengthsetter.value.select();
       }
     };
 
     const lengthEventListener = (e: KeyboardEvent) => {
-      if (e.key === "l" && (e.altKey || e.metaKey)) {
+      if (e.key === "r" && (e.altKey || e.metaKey)) {
         e.preventDefault(); // present "Save Page" from getting triggered.
 
-        anglesetter.value.select();
+        rotationsetter.value.select();
       }
     };
 
@@ -96,26 +92,25 @@ export default defineComponent({
 
     return {
       shapeProperties,
-      lengthSet,
-      angleSet,
       lengthsetter,
-      anglesetter,
+      rotationsetter,
       handler,
     };
   },
-
+  
   computed: {
-    angle: {
+    rotation: {
       get(): number {
-        if (this.shapeProperties.angle !== undefined) {
-          return Math.floor(this.shapeProperties.angle.toDeg());
+        if (this.shapeProperties.rotation !== undefined) {
+          return Math.floor(this.shapeProperties.rotation.toDeg());
         } else {
           return 0;
         }
       },
       set(val: number | string) {
         if(val != '' && val != '-') {
-          this.shapeProperties.angle = angleFromInput(val);
+          this.shapeProperties.rotation = angleFromInput(val);
+          console.log(this.shapeProperties.rotation);
         }
       },
     },
@@ -123,19 +118,13 @@ export default defineComponent({
 
   methods: {
     onEnterPress() {
-      let formData: ILineShapeFormProperties = {};
-      if (this.lengthSet && this.shapeProperties.length !== undefined) {
-        formData.length = this.shapeProperties.length;
-      }
-
-      if (this.angleSet && this.shapeProperties.angle !== undefined) {
-        formData.angle = this.shapeProperties.angle;
-      }
-
+      let formData: ILineShapeFormProperties = {
+        length: this.shapeProperties.length,
+        rotation: this.shapeProperties.rotation,
+      };
+    
       this.handler.formSubmit(formData);
-      this.lengthSet = false;
-      this.angleSet = false;
     },
-  },
+  }
 });
 </script>

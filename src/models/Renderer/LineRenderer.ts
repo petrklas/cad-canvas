@@ -91,6 +91,7 @@ export default class LineRenderer extends RenderableShape {
     }
 
     removeFromLayer() {
-        this.destroy();
+        this.clear();
+        this.removeAllListeners();
     }
 }

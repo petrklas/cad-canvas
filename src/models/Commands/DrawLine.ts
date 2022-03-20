@@ -12,7 +12,6 @@ export class DrawLine implements ICommand {
     }
 
     execute() {
-        console.log(this.lineRenderer);
         this.lineRenderer.addToLayer();
     }
 

@@ -113,11 +113,13 @@ export default class Stage extends Container {
 class StageHistory {
     commands: ICommand[] = [];
     currentCommandIndex = -1;
+    MAX_HISTORY_LENGTH = 5;
 
     addCommand(command: ICommand): void {
         this.commands.push(command);
         command.execute();
         this.currentCommandIndex++;
+        this.reduceHistory();
         const eventBus = EventBus.getInstance();
         eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, command);
     }
@@ -125,9 +127,9 @@ class StageHistory {
     undo(): void {
         if (this.isUndoPossible()) {
             this.commands[this.currentCommandIndex].undo();
+            this.currentCommandIndex--;
             const eventBus = EventBus.getInstance();
             eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, this.commands[this.currentCommandIndex]);
-            this.currentCommandIndex--;
         }
     }
 
@@ -135,20 +137,27 @@ class StageHistory {
         if (this.isRedoPossible()) {
             const index = this.currentCommandIndex + 1;
             this.commands[index].execute();
-            console.log(this.commands[index]);
+            this.currentCommandIndex++;
             const eventBus = EventBus.getInstance();
             eventBus.dispatch<ICommand>(CustomEvenTypes.CANVAS_COMMAND_PERFORMED, this.commands[index]);
-            this.currentCommandIndex++;
         }
     }
 
     isRedoPossible(): boolean {
         const index = this.currentCommandIndex + 1;
-        console.log(index);
+        console.log(index, this.commands.length);
         return (index in this.commands);
     }
 
     isUndoPossible(): boolean {
         return (this.currentCommandIndex > -1);
+    }
+
+    // if maximum number of items exceed the limit, reduce the latest elements in history
+    reduceHistory(): void {
+        if (this.commands.length > this.MAX_HISTORY_LENGTH) {
+            this.commands.splice(0, 1);
+            this.currentCommandIndex--;
+        }
     }
 }

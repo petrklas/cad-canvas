@@ -1,8 +1,8 @@
 
 import Point from "@/types/Point";
-import { Line as LineShape } from "../../Shapes/Line";
-import Stage from "../../Stage";
-import { AxisHelper } from "../../Snappers/Helpers"
+import { Line as LineShape } from "../../../Shapes/Line";
+import Stage from "../../../Stage";
+import { AxisHelper } from "../../../Snappers/Helpers"
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
@@ -11,7 +11,7 @@ import { CustomEvenTypes, EventKeys } from "@/utils/EventTypes";
 import { EventHandler, IEvent } from "@/types/EventHandler";
 import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
 
-export class Line extends EventHandler {
+export class LineCreator extends EventHandler {
     hasStarted = false;
     originPoint: Point = new Point(0, 0);
     stage: Stage;

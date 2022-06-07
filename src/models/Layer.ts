@@ -66,4 +66,8 @@ export default class Layer extends Container implements ILayer {
 
         this.addChild(object);
     }
+
+    setVisibility(visibility: boolean): void {
+        this.visible = visibility;
+    }
 }

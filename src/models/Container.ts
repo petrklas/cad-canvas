@@ -58,4 +58,8 @@ export default class Container extends PIXIContainer {
     addToCurrentLayer(displayObject: RenderableObject): void {
         this.getActiveLayer().addShape(displayObject);
     }
+
+    getLayers(): Layer[] {
+        return this.layers;
+    }
 }

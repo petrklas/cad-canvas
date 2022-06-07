@@ -11,8 +11,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, ref, onMounted, onUnmounted, toRef } from "vue";
-import { useEngine } from "@/models/Engine";
+import { defineComponent, ref, onMounted, onUnmounted, toRef } from "vue";
+import { useEngine } from "../models/Composables/useEngine";
 import * as PIXI from "pixi.js";
 import { useUIStateStore } from "@/store/UIState";
 import Coordinates from "./Coordinates.vue";

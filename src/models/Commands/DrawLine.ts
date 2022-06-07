@@ -11,11 +11,11 @@ export class DrawLine implements ICommand {
         this.lineRenderer = this.line.getRenderObject();
     }
 
-    execute() {
+    execute(): void {
         this.lineRenderer.addToLayer();
     }
 
-    undo() {
+    undo(): void {
         this.lineRenderer.removeFromLayer();
     }
 }

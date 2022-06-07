@@ -41,6 +41,10 @@ export default class Stage extends Container {
         return this.eventBus;
     }
 
+    getBackground(): Container {
+        return this.background;
+    }
+
     getStageHistory(): StageHistory {
         return this.stageHistory;
     }

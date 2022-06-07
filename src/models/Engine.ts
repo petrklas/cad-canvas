@@ -1,6 +1,5 @@
 import CanvasEventHandler from "./Events/CanvasEventHandler";
 import Stage from "./Stage";
-import { inject } from "vue-demi";
 
 export default class Engine {
     handler: CanvasEventHandler;
@@ -20,13 +19,3 @@ export default class Engine {
     }
 }
 
-export function useEngine(): Engine {
-
-    const engine = inject<Engine>("engine");
-
-    if(engine === undefined) {
-      throw new Error(__filename + ": Engine instance is required");
-    }
-
-    return engine;
-}

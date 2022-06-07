@@ -17,7 +17,7 @@
         <Menu @menuItemClicked="menuItemClicked" />
       </div>
       <div id="layers-container" v-show="store.layerPanelDisplayed">
-        <Layers />
+        <Layers v-if="store.layerPanelDisplayed" />
       </div>
       <div id="main-canvas">
         <Canvas />
@@ -38,7 +38,7 @@ import Layers from "./components/Layers.vue";
 import TopMenu from "./components/TopMenu.vue";
 import Scale from "./components/Scale.vue";
 import Canvas from "./components/Canvas.vue";
-import { useEngine } from "./models/Engine";
+import { useEngine } from "./models/Composables/useEngine";
 import IMenuItem from "./types/MenuItem";
 import { useUIStateStore } from "./store/UIState";
 import { useStageHistory } from "./models/Composables/useStageHistory"

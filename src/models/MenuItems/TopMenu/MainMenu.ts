@@ -1,5 +1,5 @@
 import IMenuItem from "@/types/MenuItem";
-import {Line as LineHandler} from "@/models/Events/EventHandlers/Line";
+import {LineCreator as LineHandler} from "@/models/Events/EventHandlers/Line/LineCreator";
 import Stage from "../../Stage";
 
 

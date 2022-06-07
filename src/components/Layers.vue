@@ -16,27 +16,28 @@
       <li
         v-for="layer in layers"
         :key="layer.name"
-        v-on:click="$emit('menuItemClicked', item), setActiveMenu(item)"
       >
-        {{ layer.name }}
+        {{ layer.getName() }} <a href="#" v-on:click.prevent="hideLayer(layer)">hide</a> / <a href="#" v-on:click.prevent="showLayer(layer)">show</a>
       </li>
     </ul>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, toRef } from "@vue/runtime-core";
-import Engine from "@/models/Engine";
+import { defineComponent } from "@vue/runtime-core";
+import { useLayers } from "@/models/Composables/useLayers";
 
 export default defineComponent({
   emits: ["layerItemClicked"],
 
   setup() {
-    const engine = inject<Engine>("engine");
-    const layers = engine?.stage.layers;
+    const { getAllLayers, hideLayer, showLayer } = useLayers();
+    const layers = getAllLayers();
 
     return {
       layers,
+      hideLayer,
+      showLayer
     };
   },
 });

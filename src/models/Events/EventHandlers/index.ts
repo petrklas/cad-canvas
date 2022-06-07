@@ -1,2 +1,2 @@
-export { Line } from "./Line";
+export { LineCreator } from "./Line/LineCreator";
 export { Rectangle } from "./Rectangle";

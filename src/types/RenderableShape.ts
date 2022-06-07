@@ -9,8 +9,8 @@ export interface IRenderableShape {
 
 export class RenderableShape extends RenderableObject implements IRenderableShape {
     shape: IShape | null = null;
-    renderShape(layer: Layer) {
+    renderShape(layer: Layer): void {
         // TODO - update the abstract class
-        console.log('x');
+        console.log(layer);
     }
 }

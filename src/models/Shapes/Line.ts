@@ -126,8 +126,4 @@ export class Line implements ILineShape {
     getRenderObject(): LineRenderer {
         return new LineRenderer(this);
     }
-
-    render() {
-        //this.getRenderObject().addToLayer();
-    }
 }

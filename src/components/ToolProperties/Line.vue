@@ -46,7 +46,7 @@ export default defineComponent({
     const engine = inject<Engine>("engine");
 
     if(engine === undefined) {
-      throw new Error(__filename +':Engine is not defined');
+      throw new Error('Engine is not defined');
     }
 
     const handler = engine.handler.eventHandler;

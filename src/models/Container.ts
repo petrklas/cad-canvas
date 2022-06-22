@@ -51,7 +51,7 @@ export default class Container extends PIXIContainer {
         if (index != -1) {
             this.layers[index].addShape(displayObject);
         } else {
-            throw new Error(__filename + ": Layer does not exist");
+            throw new Error("Layer does not exist");
         }
     }
 

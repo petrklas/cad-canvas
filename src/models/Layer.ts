@@ -6,23 +6,24 @@ import { DisplayObject } from "pixi.js";
 import { AppConfig } from "@/config/AppConfig";
 
 export default class Layer extends Container implements ILayer {
-    options: ILayerOptions | undefined = undefined;
+    options: ILayerOptions;
 
-    constructor(options?: ILayerOptions) {
+    constructor(options: ILayerOptions) {
         super();
         this.options = options
     }
 
     getName(): string {
-        if(this.options?.name) {
-            return this.options.name;
-        } else {
-            return "";
+        if(this.options) {
+            if(this.options.name) {
+                return this.options.name;
+            }
         }
+        return "";
     }
 
     getBorderWidth(): number {
-        if(this.options?.borderWidth) {
+        if(this.options.borderWidth) {
             return this.options.borderWidth;
         } else {
             return AppConfig.layer.defaultWidth;
@@ -30,7 +31,7 @@ export default class Layer extends Container implements ILayer {
     }
 
     getColor(): number {
-        if(this.options?.color) {
+        if(this.options.color) {
             return this.options.color;
         } else {
             return AppConfig.layer.defaultColor;

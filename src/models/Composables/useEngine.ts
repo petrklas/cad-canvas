@@ -7,7 +7,7 @@ export function useEngine(): Engine {
     const engine = inject<Engine>("engine");
 
     if(engine === undefined) {
-      throw new Error(__filename + ": Engine instance is required");
+      throw new Error("Engine instance is required");
     }
 
     return engine;

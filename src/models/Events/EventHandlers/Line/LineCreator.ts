@@ -6,10 +6,12 @@ import { AxisHelper } from "../../../Snappers/Helpers"
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
-import KeyboardShortcut from "@/models/KeyboardShortucts";
-import { CustomEvenTypes, EventKeys } from "@/utils/EventTypes";
+import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
+import { CustomEvenTypes, EventKeys, GlobalEventTypes } from "@/utils/EventTypes";
 import { EventHandler, IEvent } from "@/types/EventHandler";
 import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
+import IShapeModifier from "@/types/ShapeModifier";
+import { LineAxisHelperModifier } from "./Modifiers/LineAxisHelperModifier";
 
 export class LineCreator extends EventHandler {
     hasStarted = false;
@@ -18,7 +20,7 @@ export class LineCreator extends EventHandler {
     activeHelper: IHelper | null = null;
     shape: LineShape;
     allowSnappers = true;
-    modifier: KeyboardShortcut = new KeyboardShortcut();
+    shapeModifiers: Array<IShapeModifier> = [];
     readonly onShapeChange: SubEvent<LineShape> = new SubEvent();
     events: IEvent[] = [
         {
@@ -34,11 +36,22 @@ export class LineCreator extends EventHandler {
             }
         },
         {
-            name: CustomEvenTypes.KEY_ESC,
+            name: new KeyboardShortcut([EventKeys.ESC]).setDirection(GlobalEventTypes.KEY_UP).toString(),
             handler: () => {
                 this.keyEsc();
             }
-        }
+        }, {
+            name: new KeyboardShortcut([EventKeys.SHIFT]).setDirection(GlobalEventTypes.KEY_DOWN).toString(),
+            handler: () => {
+                this.shapeModifiers[0] = new LineAxisHelperModifier(this.stage);
+            }
+        },
+        {
+            name: new KeyboardShortcut([EventKeys.SHIFT]).setDirection(GlobalEventTypes.KEY_UP).toString(),
+            handler: () => {
+                this.shapeModifiers = [];
+            }
+        },
     ];
 
     constructor(stage: Stage) {
@@ -52,13 +65,14 @@ export class LineCreator extends EventHandler {
         const mouseRelativePosition = this.stage.mousePosition.relative;
 
         if (!this.hasStarted) {
-            this.startNewShape(this.getPointFromCursor(mouseRelativePosition));
+            this.startNewShape(mouseRelativePosition);
             this.hasStarted = true;
         } else {
-            const endPoint = this.getPointFromCursor(mouseRelativePosition);
+            const endPoint = mouseRelativePosition;
             this.shape.setEnd(endPoint);
+            this.applyModifiers();
             this.shape.layer = this.stage.background.getActiveLayer();
-            
+
             const drawCommand = new DrawLineCommand(this.shape);
             this.stage.getStageHistory().addCommand(drawCommand);
 
@@ -78,18 +92,8 @@ export class LineCreator extends EventHandler {
 
         if (this.hasStarted) {
             this.stage.clearForeground();
-            this.shape.setEnd(this.getPointFromCursor(mouseRelativePosition));
-
-            if (this.modifier.isPressed([EventKeys.SHIFT])) {
-                const axisHelper = AxisHelper.getAxisHelper(this.shape.getStart(), mouseRelativePosition);
-                const axisHelperRenderer = axisHelper.getRenderObject();
-                axisHelperRenderer.addToLayer(this.stage.foreground);
-                this.activeHelper = axisHelper;
-
-            } else {
-                this.activeHelper = null;
-            }
-
+            this.shape.setEnd(mouseRelativePosition);
+            this.applyModifiers();
             const drawCommand = new DrawLineCommand(this.shape);
             drawCommand.execute();
             this.onShapeChange.emit(this.shape);
@@ -119,28 +123,11 @@ export class LineCreator extends EventHandler {
         }
     }
 
-
-    /**
-     * Get the current point - consider snappers and helpers
-     * 
-     * @param mouseCursor 
-     * @returns 
-     */
-    private getPointFromCursor(mouseCursor: Point): Point {
-        let endPoint = new Point(0, 0);
-
-        // we need to snap to helper (change the coordinates of lineTo)
-        if (this.activeHelper) {
-            endPoint = this.activeHelper!.getSnapPoint(mouseCursor);
-        }
-        // draw normal line no snapping  needed
-        else {
-            endPoint = mouseCursor;
-        }
-
-        return endPoint;
+    applyModifiers() {
+        this.shapeModifiers.forEach(modifier => {
+            modifier.modify(this.shape);
+        });
     }
-
 
     keyEsc() {
         this.reset();

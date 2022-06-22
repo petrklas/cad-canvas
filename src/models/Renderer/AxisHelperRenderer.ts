@@ -5,17 +5,17 @@ import { AppConfig } from "@/config/AppConfig";
 import Layer from "../Layer";
 import Point from "@/types/Point";
 import { DashLineShader } from "@pixi/graphics-smooth";
-// TODO
-const shader = new DashLineShader({dash: 5, gap: 8});
 export default class AxisHelperRenderer extends RenderableHelper  {
     snapper: AxisHelper;
+    shader: DashLineShader = new DashLineShader({dash: 5, gap: 8});
+    
     constructor(snapper: AxisHelper) {
         super();
         this.snapper = snapper;
     }
 
     addToLayer(layer: Layer) {
-        this.lineStyle({width: AppConfig.snapper.borderWidth, color: AppConfig.snapper.color, alpha: 0.5, shader});
+        this.lineStyle({width: AppConfig.snapper.borderWidth, color: AppConfig.snapper.color, alpha: 0.5, shader: this.shader});
 
         this.moveTo(this.snapper.start.x, this.snapper.start.y);
         const localTopBottom = layer.toLocal(new Point(0,0));

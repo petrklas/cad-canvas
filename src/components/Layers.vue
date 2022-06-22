@@ -17,7 +17,7 @@
         v-for="layer in layers"
         :key="layer.name"
       >
-        {{ layer.getName() }} <a href="#" v-on:click.prevent="hideLayer(layer)">hide</a> / <a href="#" v-on:click.prevent="showLayer(layer)">show</a>
+        {{ layer.getName() }} <i class="pi pi-eye" style="font-size: .8rem"></i><a href="#" v-on:click.prevent="hideLayer(layer)">hide</a> / <a href="#" v-on:click.prevent="showLayer(layer)">show</a>
       </li>
     </ul>
   </nav>

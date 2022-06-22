@@ -31,7 +31,7 @@ export default defineComponent({
 
     onMounted(() => {
       if (mainCanvas.value) {
-        mainCanvas.value?.appendChild(renderer.view);
+        mainCanvas.value.appendChild(renderer.view);
         resizeCanvas();
         // don't know why, but if I remove this the pixi renderer crashes completly
         new PIXI.Graphics();

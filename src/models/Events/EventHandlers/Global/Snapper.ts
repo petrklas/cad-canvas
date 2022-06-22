@@ -5,7 +5,7 @@ import { InteractionManager } from "@pixi/interaction";
 import { Point as PIXIPoint } from "@pixi/math";
 import { RenderableShape } from "@/types/RenderableShape";
 import { ISnapper } from "@/types/Snapper";
-import Point from "@/types/Point";
+import EventBus from "../../EventBus";
 
 export class Snapper extends EventHandler {
     stage: Stage;
@@ -45,7 +45,7 @@ export class Snapper extends EventHandler {
             this.stage.mousePosition.relative = selectedSnapper.getSnapPoint();
             if (this.activeSnapper == null) {
                 this.activeSnapper = selectedSnapper;
-                this.stage.getEventBus().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_POSITION_UPDATE, event);
+                EventBus.getInstance().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_POSITION_UPDATE, event);
             }
         } else {
             this.activeSnapper = null;

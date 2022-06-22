@@ -14,17 +14,16 @@ import { CustomEvenTypes } from "@/utils/EventTypes";
 
 
 export default class Stage extends Container {
-    foreground: ForegroundLayer = new ForegroundLayer();
+    foreground: ForegroundLayer = new ForegroundLayer({});
     background: Container = new Container();
-    snapLayer: Layer = new Layer();
+    snapLayer: Layer = new Layer({});
     renderer: Renderer;
     mousePosition: MousePosition = new MousePosition();
-    eventBus: EventBus;
+    
     stageHistory: StageHistory = new StageHistory();
 
     constructor() {
         super();
-        this.eventBus = new EventBus();
         this.renderer = this.initRenderer();
         this.background.addLayer(new Layer({ name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor }), true);
         this.foreground.setCurrentLayer(this.background.getActiveLayer());
@@ -35,10 +34,6 @@ export default class Stage extends Container {
         graphics.lineStyle(3, 0x00BBCC);
         graphics.drawRect(0, 0, 10, 10);
         this.addChild(graphics);
-    }
-
-    getEventBus(): EventBus {
-        return this.eventBus;
     }
 
     getBackground(): Container {
@@ -149,7 +144,6 @@ class StageHistory {
 
     isRedoPossible(): boolean {
         const index = this.currentCommandIndex + 1;
-        console.log(index, this.commands.length);
         return (index in this.commands);
     }
 

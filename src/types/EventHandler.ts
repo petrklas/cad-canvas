@@ -23,9 +23,9 @@ export abstract class EventHandler implements IEventHandler{
         this.eventBus = EventBus.getInstance();
     }
 
-    registerEvents(eventBus: EventBus): void {
+    registerEvents(): void {
         for (const event of this.events) {
-            const register = eventBus.register(event.name, event.handler);
+            const register = this.eventBus.register(event.name, event.handler);
             this.registry.push(register);
         } 
     }

@@ -2,7 +2,7 @@
 import Stage from "../../Stage";
 import Mouse from "../../Mouse";
 import { IKeyboardShortcut } from "@/types/KeyboardShortcuts";
-import KeyboardShortcut from "@/models/KeyboardShortucts";
+import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
 import { EventHandler } from "@/types/EventHandler";
 
 

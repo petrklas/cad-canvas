@@ -1,12 +1,12 @@
 import Point from "@/types/Point";
 
-export const GlobalEvenTypes = {
-  MOUSE_DOWN: "mousedown",
-  MOUSE_UP: "mouseup",
-  MOUSE_MOVE: "mousemove",
-  KEY_UP: "keyup",
-  KEY_DOWN: "keydown",
-};
+export const enum GlobalEventTypes {
+  MOUSE_DOWN = "mousedown",
+  MOUSE_UP = "mouseup",
+  MOUSE_MOVE = "mousemove",
+  KEY_UP = "keyup",
+  KEY_DOWN = "keydown",
+}
 
 export const CustomEvenTypes = {
   MOUSE_DOWN_LEFT: "mousedownleft",
@@ -31,7 +31,8 @@ export const enum EventKeys {
   ESC = 'Escape',
   SHIFT = 'Shift',
   CTRL = 'Control',
-  ALT = 'Alt'
+  ALT = 'Alt',
+  Z = 'Z'
 }
 
 export const CustomEvents = {

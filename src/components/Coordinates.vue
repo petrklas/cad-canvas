@@ -15,7 +15,7 @@ export default defineComponent({
     const { register } = useEventBus();
     const mousePosition = ref(new Point(0, 0));
 
-    const eventRegistry = register(CustomEvenTypes.MOUSE_POSITION_UPDATE, (event: MouseMoveRelativeEvent) => {
+    const eventRegistry = register(CustomEvenTypes.MOUSE_MOVE, (event: MouseMoveRelativeEvent) => {
       mousePosition.value = event.relativeOffset;
     });
 

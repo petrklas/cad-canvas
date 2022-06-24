@@ -3,24 +3,29 @@ import { Polygon } from "@pixi/math";
 import { IRenderableShape } from "./RenderableShape";
 import Point from "./Point";
 import { Angle } from "@/utils/Math";
-import { IShapeColorType } from "./Color";
 import { ILayer } from "./Layer";
 import { IShapeBorder } from "./Border";
 
 export interface IShape {
-    getSnappers: () => Array<ISnapper>;
     getRenderObject: () => IRenderableShape;
-    hitArea: Polygon | null;
+    getSnappers: () => Array<ISnapper>;
     layer: ILayer;
 }
 
 export interface ILineShape extends IShape {
     getStart: () => Point;
     getEnd: () => Point,
+    getSnappers: () => Array<ISnapper>;
     hitArea: Polygon | null;
     rotation: Angle,
     length: number,
-    border: IShapeBorder,
+}
+
+export interface IRectangleShape extends IShape {
+    getStart: () => Point;
+    getWidth: () => number,
+    getHeight: () => number,
+    rotation: Angle,
 }
 
 export interface ILineShapeFormProperties {

@@ -54,6 +54,7 @@ export class Zoom extends EventHandler {
         stage.y -= (newScreenPos.y - mousePosition.y);
 
         stage.setScale(scale);
+        stage.renderStage();
     }
 }
 

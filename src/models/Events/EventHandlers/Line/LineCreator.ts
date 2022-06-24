@@ -7,7 +7,7 @@ import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
-import { CustomEvenTypes, EventKeys, GlobalEventTypes } from "@/utils/EventTypes";
+import { CustomEvenTypes, EventKeys, GlobalEventTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
 import { EventHandler, IEvent } from "@/types/EventHandler";
 import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
 import IShapeModifier from "@/types/ShapeModifier";
@@ -25,14 +25,14 @@ export class LineCreator extends EventHandler {
     events: IEvent[] = [
         {
             name: CustomEvenTypes.MOUSE_DOWN_LEFT,
-            handler: () => {
-                this.leftClickDown();
+            handler: (event: MouseMoveRelativeEvent) => {
+                this.leftClickDown(event);
             }
         },
         {
-            name: CustomEvenTypes.MOUSE_POSITION_UPDATE,
-            handler: () => {
-                this.mouseMove();
+            name: CustomEvenTypes.MOUSE_MOVE,
+            handler: (event: MouseMoveRelativeEvent) => {
+                this.mouseMove(event);
             }
         },
         {
@@ -61,8 +61,8 @@ export class LineCreator extends EventHandler {
     }
 
 
-    leftClickDown(): void {
-        const mouseRelativePosition = this.stage.mousePosition.relative;
+    leftClickDown(event: MouseMoveRelativeEvent): void {
+        const mouseRelativePosition = event.relativeOffset;
 
         if (!this.hasStarted) {
             this.startNewShape(mouseRelativePosition);
@@ -75,6 +75,7 @@ export class LineCreator extends EventHandler {
 
             const drawCommand = new DrawLineCommand(this.shape);
             this.stage.getStageHistory().addCommand(drawCommand);
+            this.stage.renderStage();
 
             // continue new shape immediately
             const end = this.shape.getEnd();
@@ -87,8 +88,8 @@ export class LineCreator extends EventHandler {
         this.shape.setStart(start);
     }
 
-    mouseMove(): void {
-        const mouseRelativePosition = this.stage.mousePosition.relative;
+    mouseMove(event: MouseMoveRelativeEvent): void {
+        const mouseRelativePosition = event.relativeOffset;
 
         if (this.hasStarted) {
             this.stage.clearForeground();
@@ -96,6 +97,7 @@ export class LineCreator extends EventHandler {
             this.applyModifiers();
             const drawCommand = new DrawLineCommand(this.shape);
             drawCommand.execute();
+            this.stage.renderStage();
             this.onShapeChange.emit(this.shape);
         }
     }
@@ -132,6 +134,7 @@ export class LineCreator extends EventHandler {
     keyEsc() {
         this.reset();
         this.stage.clearForeground();
+        this.stage.renderStage();
     }
 
     reset() {

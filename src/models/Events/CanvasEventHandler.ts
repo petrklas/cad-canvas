@@ -1,6 +1,6 @@
-import { GlobalEventTypes, CustomEvenTypes, EventButtons, EventKeys } from "@/utils/EventTypes";
+import { GlobalEventTypes, CustomEvenTypes, EventButtons, EventKeys, MouseMoveRelativeEvent } from "@/utils/EventTypes";
 import * as GlobalEventHandlers from "./EventHandlers/Global"
-import KeyboardShortcut from "./KeyboardShortuct";
+import Point from "@/types/Point";
 import Stage from "../Stage";
 import { IEventHandler } from "@/types/EventHandler";
 import EventBus from "./EventBus";
@@ -15,17 +15,16 @@ export default class CanvasEventHandler {
     }
 
     initGlobalEventHandlers(): void {
-       new GlobalEventHandlers.Zoom(this.stage).registerEvents();
-       new GlobalEventHandlers.Pan(this.stage).registerEvents();
-       new GlobalEventHandlers.MouseMove(this.stage).registerEvents();
-       new GlobalEventHandlers.Snapper(this.stage).registerEvents();
+        new GlobalEventHandlers.Zoom(this.stage).registerEvents();
+        new GlobalEventHandlers.Pan(this.stage).registerEvents();
+        new GlobalEventHandlers.Snapper(this.stage).registerEvents();
     }
 
     setEventHandler(eventHandler: IEventHandler) {
         if (this.eventHandler !== undefined) {
             this.eventHandler.unregisterAllEvents();
         }
-        
+
         this.eventHandler = eventHandler;
         this.eventHandler.registerEvents();
     }
@@ -44,31 +43,38 @@ export default class CanvasEventHandler {
                 eventBus.dispatch<WheelEvent>(CustomEvenTypes.WHEEL_DOWN, event);
             }
         } else if (event instanceof MouseEvent) {
+
+            // we need to transform HTML mouse position to the engine local position (adjusted by panning, zooming, etc)
+            this.stage.setMousePosition(new Point(event.offsetX, event.offsetY));
+            const relativeEvent = event as MouseMoveRelativeEvent;
+            relativeEvent.relativeOffset = this.stage.mousePosition.getRelativePosition();
+
             switch (event.button) {
                 case EventButtons.LEFT:
                     switch (event.type) {
                         case GlobalEventTypes.MOUSE_DOWN:
-                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_LEFT, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_LEFT, relativeEvent);
                             break;
                         case GlobalEventTypes.MOUSE_MOVE:
-                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, relativeEvent);
+                            break;
+                        case GlobalEventTypes.MOUSE_UP:
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_LEFT, relativeEvent);
                             break;
                     }
                     break;
                 case EventButtons.MIDDLE:
                     switch (event.type) {
                         case GlobalEventTypes.MOUSE_DOWN:
-                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_MIDDLE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_DOWN_MIDDLE, relativeEvent);
                             break;
                         case GlobalEventTypes.MOUSE_UP:
-                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_MIDDLE, event);
+                            eventBus.dispatch<MouseEvent>(CustomEvenTypes.MOUSE_UP_MIDDLE, relativeEvent);
                             break;
                     }
                     break;
 
             }
-        } 
-
-        this.stage.renderStage();
+        }
     }
 }

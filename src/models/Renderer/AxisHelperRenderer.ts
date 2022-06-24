@@ -4,10 +4,10 @@ import { AxisHelper } from "../Snappers/Helpers"
 import { AppConfig } from "@/config/AppConfig";
 import Layer from "../Layer";
 import Point from "@/types/Point";
-import { DashLineShader } from "@pixi/graphics-smooth";
+//import { DashLineShader } from "@pixi/graphics-smooth";
 export default class AxisHelperRenderer extends RenderableHelper  {
     snapper: AxisHelper;
-    shader: DashLineShader = new DashLineShader({dash: 5, gap: 8});
+    //shader: DashLineShader = new DashLineShader({dash: 5, gap: 8});
     
     constructor(snapper: AxisHelper) {
         super();

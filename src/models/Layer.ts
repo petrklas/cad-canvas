@@ -1,8 +1,6 @@
 import { Container } from "@pixi/display";
 import RenderableObject from "@/types/RenderableObject";
 import { ILayer, ILayerOptions } from "@/types/Layer";
-import { RenderableShape } from "@/types/RenderableShape";
-import { DisplayObject } from "pixi.js";
 import { AppConfig } from "@/config/AppConfig";
 
 export default class Layer extends Container implements ILayer {

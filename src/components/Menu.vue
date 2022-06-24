@@ -20,7 +20,7 @@
 import { useMenu } from "@/models/Menu"
 import { useUIStateStore } from "@/store/UIState";
 import { defineComponent, onMounted, toRef } from "@vue/runtime-core";
-import { Line, Rectangle } from "@/models/MenuItems/Tools"
+import { Line, Selector} from "@/models/MenuItems/Tools"
 
 export default defineComponent({
 
@@ -31,7 +31,7 @@ export default defineComponent({
     
     const {menuItems, activeMenuItem, setActiveMenu} = useMenu([
         new Line(),
-        new Rectangle()
+        new Selector(),
     ]);
     let layerPanelDisplayed = toRef(store, "layerPanelDisplayed");
 

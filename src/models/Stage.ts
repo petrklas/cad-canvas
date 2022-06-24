@@ -12,7 +12,6 @@ import EventBus from "./Events/EventBus";
 import ICommand from "@/types/Command";
 import { CustomEvenTypes } from "@/utils/EventTypes";
 
-
 export default class Stage extends Container {
     foreground: ForegroundLayer = new ForegroundLayer({});
     background: Container = new Container();
@@ -34,6 +33,7 @@ export default class Stage extends Container {
         graphics.lineStyle(3, 0x00BBCC);
         graphics.drawRect(0, 0, 10, 10);
         this.addChild(graphics);
+        this.renderStage();
     }
 
     getBackground(): Container {

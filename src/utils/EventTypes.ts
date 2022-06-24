@@ -15,7 +15,6 @@ export const CustomEvenTypes = {
   MOUSE_UP_MIDDLE: "mouseupmiddle",
   MOUSE_MOVE: "mousemove",
   KEY_ESC: "keyesc",
-  MOUSE_POSITION_UPDATE: "mousepositionupdate",
   WHEEL_UP: "wheelup",
   WHEEL_DOWN: "wheeldown",
   CANVAS_COMMAND_PERFORMED: "commandAdded",
@@ -39,6 +38,6 @@ export const CustomEvents = {
   LENGTH: 'length'
 }
 
-export class MouseMoveRelativeEvent {
+export class MouseMoveRelativeEvent extends MouseEvent {
     relativeOffset = new Point(0, 0);
 }

@@ -1,2 +1,2 @@
 export { LineCreator } from "./Line/LineCreator";
-export { Rectangle } from "./Rectangle";
+export { Selector } from "./Selector/Selector";

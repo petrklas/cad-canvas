@@ -54,6 +54,7 @@ export class Pan extends EventHandler {
             this.stage.x += xShift;
             this.stage.y += yShift;
             this.lastPoint = this.stage.mousePosition.absolute;
+            this.stage.renderStage();
         }
     }
 }

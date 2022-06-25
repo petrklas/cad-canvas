@@ -1,22 +1,22 @@
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 import { AppConfig } from "@/config/AppConfig";
-import { EventHandler, IEvent } from "@/types/EventHandler";
+import { EventHandler, IEventListener } from "@/types/EventHandler";
 import { CustomEvenTypes } from "@/utils/EventTypes";
 
 export class Zoom extends EventHandler {
     stage: Stage;
-    events: IEvent[] = [
+    eventListeners: IEventListener[] = [
     {
         name: CustomEvenTypes.WHEEL_UP,
-        handler: (event: MouseEvent) => {
-            this.zoomIn(event);
+        handler: (event: MouseEvent): void => {
+            this.zoom("in", event);
         }
     },
     {
         name: CustomEvenTypes.WHEEL_DOWN,
-        handler: (event: MouseEvent) => {
-            this.zoomOut(event);
+        handler: (event: MouseEvent): void => {
+            this.zoom("out", event);
         }
     },
     ];
@@ -24,16 +24,6 @@ export class Zoom extends EventHandler {
     constructor(stage: Stage) {
         super();
         this.stage = stage;
-    }
-
-
-    zoomIn(event: MouseEvent): void {
-        this.zoom("in", event);
-
-    }
-
-    zoomOut(event: MouseEvent): void {
-        this.zoom("out", event);
     }
 
     private zoom(direction: "in" | "out", event: MouseEvent): void {

@@ -1,22 +1,22 @@
 import Stage from "../../../Stage";
-import { EventHandler, IEvent } from "@/types/EventHandler";
+import { EventHandler, IEventListener } from "@/types/EventHandler";
 import { CustomEvenTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
 import { InteractionManager } from "@pixi/interaction";
 import { Point as PIXIPoint } from "@pixi/math";
 import { RenderableShape } from "@/types/RenderableShape";
 import { ISnapper } from "@/types/Snapper";
-import EventBus from "../../EventBus";
+import EventBus, { IEventStopPropagationCallback } from "../../EventBus";
 
 export class Snapper extends EventHandler {
     stage: Stage;
     private interactionManager: InteractionManager;
     private activeSnapper: ISnapper | null = null;
 
-    events: IEvent[] = [
+    eventListeners: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_MOVE,
-            handler: (event: MouseMoveRelativeEvent) => {
-                this.mouseMove(event);
+            handler: (event: MouseMoveRelativeEvent, stopPropagationCallback: IEventStopPropagationCallback): void => {
+                this.mouseMove(event, stopPropagationCallback);
             }
         }
     ];
@@ -27,7 +27,7 @@ export class Snapper extends EventHandler {
         this.stage = stage;
     }
 
-    private mouseMove(event: MouseMoveRelativeEvent): void {
+    private mouseMove(event: MouseMoveRelativeEvent, stopPropagationCallback: IEventStopPropagationCallback): void {
         const mousePoint = this.stage.mousePosition.absolute;
         let selectedSnapper: ISnapper | null = null;
         // first we search for hovered shape
@@ -52,6 +52,7 @@ export class Snapper extends EventHandler {
             // otherwise we would create infinite loop
             if (event.relativeOffset != selectedSnapper.getSnapPoint()) {
                 event.relativeOffset = selectedSnapper.getSnapPoint();
+                stopPropagationCallback();
                 EventBus.getInstance().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
                 this.renderSnapper(selectedSnapper);
             }

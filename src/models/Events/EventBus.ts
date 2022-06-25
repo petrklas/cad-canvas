@@ -1,7 +1,17 @@
 import { IEventBus, Registry, Subscriber } from "@/types/EventBus";
 import { IKeyboardShortcut } from "@/types/KeyboardShortcuts";
 
- export default class EventBus implements IEventBus {
+// used for stop propagation current event. 
+// E.g. if inside mousemove event handler we trigger another mouse move we do not to run the previous one till end
+export interface IEventStopPropagationCallback {
+  (): void;
+}
+
+interface IEventSubscriberCallback {
+  (event?: Event, stopPropagationCallback?: IEventStopPropagationCallback): void
+}
+
+export default class EventBus implements IEventBus {
     private subscribers: Subscriber;
     private static nextId = 0;
     private static instance?: EventBus = undefined;
@@ -18,10 +28,20 @@ import { IKeyboardShortcut } from "@/types/KeyboardShortcuts";
         return;
       }
   
-      Object.keys(subscriber).forEach((key) => subscriber[key](arg));
+      let stopPropagationValue = false;
+      const stopPropagationCallback: IEventStopPropagationCallback = (): void => {
+        stopPropagationValue = true;
+      }
+
+      for (const key of Object.keys(subscriber)){
+        subscriber[key](arg, stopPropagationCallback);
+        if(stopPropagationValue) {
+          break;
+        }
+      }
     }
   
-    public register(event: string | IKeyboardShortcut, callback: (...args: any[]) => void): Registry {
+    public register(event: string | IKeyboardShortcut, callback: IEventSubscriberCallback): Registry {
       const id = this.getNextId();
       const eventName = event.toString();
       if (!this.subscribers[eventName]) this.subscribers[eventName] = {};

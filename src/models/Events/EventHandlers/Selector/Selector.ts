@@ -7,7 +7,7 @@ import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
 import { CustomEvenTypes, EventKeys, GlobalEventTypes } from "@/utils/EventTypes";
-import { EventHandler, IEvent } from "@/types/EventHandler";
+import { EventHandler, IEventListener } from "@/types/EventHandler";
 import { DrawRectangle as DrawCommand } from "@/models/Commands/DrawRectangle";
 import IShapeModifier from "@/types/ShapeModifier";
 
@@ -17,13 +17,16 @@ export class Selector extends EventHandler {
     stage: Stage;
     shape: RectangleShape;
 
-    events: IEvent[] = [
+    eventListeners: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_DOWN_LEFT,
             handler: () => {
                 this.leftClickDown();
             }
-        },
+        }
+    ];
+
+    eventListenersTrigerred: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_MOVE,
             handler: () => {
@@ -34,12 +37,6 @@ export class Selector extends EventHandler {
             name: CustomEvenTypes.MOUSE_UP_LEFT,
             handler: () => {
                 this.leftClickUp();
-            }
-        },
-        {
-            name: new KeyboardShortcut([EventKeys.ESC]).setDirection(GlobalEventTypes.KEY_UP).toString(),
-            handler: () => {
-                this.keyEsc();
             }
         }
     ];
@@ -53,6 +50,7 @@ export class Selector extends EventHandler {
     leftClickUp(): void {
         this.reset();
         this.stage.clearForeground();
+        this.unregisterEventListeners(this.eventListenersTrigerred);
     }
 
     leftClickDown(): void {
@@ -61,6 +59,7 @@ export class Selector extends EventHandler {
         if (!this.hasStarted) {
             this.startNewShape(mouseRelativePosition);
             this.hasStarted = true;
+            this.registerEventListeners(this.eventListenersTrigerred);
         } 
     }
 
@@ -79,11 +78,6 @@ export class Selector extends EventHandler {
             drawCommand.execute();
             this.stage.renderStage();
         }
-    }
-
-    keyEsc() {
-        this.reset();
-        this.stage.clearForeground();
     }
 
     reset() {

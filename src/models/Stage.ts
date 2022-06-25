@@ -12,6 +12,7 @@ import EventBus from "./Events/EventBus";
 import ICommand from "@/types/Command";
 import { CustomEvenTypes } from "@/utils/EventTypes";
 
+let stageRendered = 0;
 export default class Stage extends Container {
     foreground: ForegroundLayer = new ForegroundLayer({});
     background: Container = new Container();
@@ -105,6 +106,8 @@ export default class Stage extends Container {
     }
 
     renderStage() {
+        stageRendered++;
+        console.log("Stage renderered", stageRendered, "times");
         this.renderer.render(this);
     }
 }

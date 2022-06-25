@@ -2,13 +2,12 @@
 import Point from "@/types/Point";
 import { Line as LineShape } from "../../../Shapes/Line";
 import Stage from "../../../Stage";
-import { AxisHelper } from "../../../Snappers/Helpers"
 import { IHelper } from "@/types/Helper";
 import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
 import { CustomEvenTypes, EventKeys, GlobalEventTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
-import { EventHandler, IEvent } from "@/types/EventHandler";
+import { EventHandler, IEventListener } from "@/types/EventHandler";
 import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
 import IShapeModifier from "@/types/ShapeModifier";
 import { LineAxisHelperModifier } from "./Modifiers/LineAxisHelperModifier";
@@ -22,33 +21,36 @@ export class LineCreator extends EventHandler {
     allowSnappers = true;
     shapeModifiers: Array<IShapeModifier> = [];
     readonly onShapeChange: SubEvent<LineShape> = new SubEvent();
-    events: IEvent[] = [
+    eventListeners: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_DOWN_LEFT,
-            handler: (event: MouseMoveRelativeEvent) => {
+            handler: (event: MouseMoveRelativeEvent): void => {
                 this.leftClickDown(event);
             }
-        },
+        }
+    ];
+
+    mouseMoveEventListeners: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_MOVE,
-            handler: (event: MouseMoveRelativeEvent) => {
+            handler: (event: MouseMoveRelativeEvent): void => {
                 this.mouseMove(event);
             }
         },
         {
             name: new KeyboardShortcut([EventKeys.ESC]).setDirection(GlobalEventTypes.KEY_UP).toString(),
-            handler: () => {
+            handler: (): void => {
                 this.keyEsc();
             }
         }, {
             name: new KeyboardShortcut([EventKeys.SHIFT]).setDirection(GlobalEventTypes.KEY_DOWN).toString(),
-            handler: () => {
+            handler: (): void => {
                 this.shapeModifiers[0] = new LineAxisHelperModifier(this.stage);
             }
         },
         {
             name: new KeyboardShortcut([EventKeys.SHIFT]).setDirection(GlobalEventTypes.KEY_UP).toString(),
-            handler: () => {
+            handler: (): void => {
                 this.shapeModifiers = [];
             }
         },
@@ -67,6 +69,7 @@ export class LineCreator extends EventHandler {
         if (!this.hasStarted) {
             this.startNewShape(mouseRelativePosition);
             this.hasStarted = true;
+            this.registerEventListeners(this.mouseMoveEventListeners);
         } else {
             const endPoint = mouseRelativePosition;
             this.shape.setEnd(endPoint);
@@ -83,7 +86,7 @@ export class LineCreator extends EventHandler {
         }
     }
 
-    private startNewShape(start: Point) {
+    private startNewShape(start: Point): void {
         this.shape = new LineShape(this.stage.foreground);
         this.shape.setStart(start);
     }
@@ -102,7 +105,7 @@ export class LineCreator extends EventHandler {
         }
     }
 
-    formSubmit(data: ILineShapeFormProperties) {
+    formSubmit(data: ILineShapeFormProperties): void {
         if (!this.hasStarted) {
             return;
         } else {
@@ -125,19 +128,20 @@ export class LineCreator extends EventHandler {
         }
     }
 
-    applyModifiers() {
+    applyModifiers(): void {
         this.shapeModifiers.forEach(modifier => {
             modifier.modify(this.shape);
         });
     }
 
-    keyEsc() {
+    keyEsc(): void {
         this.reset();
         this.stage.clearForeground();
         this.stage.renderStage();
+        this.unregisterEventListeners(this.mouseMoveEventListeners);
     }
 
-    reset() {
+    reset(): void {
         this.hasStarted = false;
         this.shape = new LineShape(this.stage.foreground);
     }

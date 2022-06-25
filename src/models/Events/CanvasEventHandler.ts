@@ -15,18 +15,18 @@ export default class CanvasEventHandler {
     }
 
     initGlobalEventHandlers(): void {
-        new GlobalEventHandlers.Zoom(this.stage).registerEvents();
-        new GlobalEventHandlers.Pan(this.stage).registerEvents();
-        new GlobalEventHandlers.Snapper(this.stage).registerEvents();
+        new GlobalEventHandlers.Zoom(this.stage).registerAllEventListeners();
+        new GlobalEventHandlers.Pan(this.stage).registerAllEventListeners();
+        new GlobalEventHandlers.Snapper(this.stage).registerAllEventListeners();
     }
 
     setEventHandler(eventHandler: IEventHandler) {
         if (this.eventHandler !== undefined) {
-            this.eventHandler.unregisterAllEvents();
+            this.eventHandler.unregisterAllEventListeners();
         }
 
         this.eventHandler = eventHandler;
-        this.eventHandler.registerEvents();
+        this.eventHandler.registerAllEventListeners();
     }
 
     getEventHandler(): IEventHandler {

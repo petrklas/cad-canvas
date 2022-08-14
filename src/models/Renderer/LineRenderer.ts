@@ -4,6 +4,7 @@ import { RenderableShape } from "@/types/RenderableShape";
 import { Text, TextStyle } from "@pixi/text";
 import Layer from "../Layer";
 import ForegroundLayer from "../ForegroundLayer";
+import { IShapeBorderValues } from "@/types/Border";
 export default class LineRenderer extends RenderableShape {
     shape: Line;
 
@@ -40,7 +41,7 @@ export default class LineRenderer extends RenderableShape {
             fontSize: 14,
             fill: 0xffffff
         });
-        const basicText = new Text(this.shape.getAngle().toRad().toString(), style);
+        const basicText = new Text(Math.round(this.shape.getAngle().toDeg()).toString(), style);
         basicText.rotation = this.shape.getAngle().toRad();
         basicText.x = this.shape.getCenter().x + 10;
         basicText.y = this.shape.getCenter().y + 10;
@@ -57,14 +58,17 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
+        this.removeChildren();
 
-        if (this.shape.layer instanceof ForegroundLayer) {
+        if (layer instanceof ForegroundLayer) {
             this.showAngleHelper();
         } else {
             this.setInteractive();
+            // this should automaticly not render the object whenewer it is outside viewport
+            this.cullable = true;
         }
 
-        this.lineStyle({ width: layer.getBorderWidth(), color: layer.getColor() });
+        this.lineStyle({ width: this.getBorderStyle(layer).thickness, color: this.getBorderStyle(layer).color, shader: this.getBorderStyle(layer).shader });
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }
@@ -73,25 +77,56 @@ export default class LineRenderer extends RenderableShape {
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
-        this.lineStyle(layer.getBorderWidth() * 2, 0xaa55cc);
+        this.lineStyle(this.getBorderStyle(layer).thickness * 2, 0xaa55cc);
         this.moveTo(start.x, start.y);
         this.lineTo(end.x, end.y);
     }
 
-    addToLayer() {
-        this.renderShape(this.shape.layer);
+    // TODO - adding to layer should be part of the ShapeClass, renderer shouldn't know anything about layer
+    addToLayer(layer: Layer) {
+        this.renderShape(layer);
 
-        // do not add event listeners for already drawing shape
-        if (!(this.shape.layer instanceof ForegroundLayer)) {
-            this.on('pointerover', this.hoverShape.bind(this, this.shape.layer))
-                .on('pointerout', this.renderShape.bind(this, this.shape.layer));
+        // do not add event listeners for shapes that are beeing drawed
+        if (!(layer instanceof ForegroundLayer)) {
+            this.on('pointerover', this.hoverShape.bind(this, layer))
+                .on('pointerout', this.renderShape.bind(this, layer));
         }
 
-        this.shape.layer.addShape(this);
+        layer.addShape(this);
     }
 
     removeFromLayer() {
         this.clear();
         this.removeAllListeners();
+    }
+
+    // TODO: maybe this should be in its own class
+    getBorderStyle(layer: Layer): IShapeBorderValues {
+        let alpha, color, thickness, shader = null;
+        if (this.shape.style.border.alpha == "inherited") {
+            alpha = layer.getBorderAlpha();
+        } else {
+            alpha = this.shape.style.border.alpha;
+        }
+
+        if (this.shape.style.border.color == "inherited") {
+            color = layer.getBorderColor();
+        } else {
+            color = this.shape.style.border.color;
+        }
+
+        if (this.shape.style.border.thickness == "inherited") {
+            thickness = layer.getBorderThickness();
+        } else {
+            thickness = this.shape.style.border.thickness;
+        }
+
+        if (this.shape.style.border.shader == "inherited") {
+            shader = layer.getBorderShader();
+        } else {
+            shader = this.shape.style.border.shader;
+        }
+
+        return {color: color, alpha: alpha, thickness: thickness, shader: shader};
     }
 }

@@ -2,6 +2,8 @@ import { Container } from "@pixi/display";
 import RenderableObject from "@/types/RenderableObject";
 import { ILayer, ILayerOptions } from "@/types/Layer";
 import { AppConfig } from "@/config/AppConfig";
+import { IShaderType } from "@/types/Shader";
+import { Shader } from "pixi.js";
 
 export default class Layer extends Container implements ILayer {
     options: ILayerOptions;
@@ -20,19 +22,35 @@ export default class Layer extends Container implements ILayer {
         return "";
     }
 
-    getBorderWidth(): number {
-        if(this.options.borderWidth) {
-            return this.options.borderWidth;
+    getBorderThickness(): number {
+        if(this.options.border) {
+            return this.options.border.thickness;
         } else {
-            return AppConfig.layer.defaultWidth;
+            return AppConfig.layer.defaultBorderThickness;
         }
     }
 
-    getColor(): number {
-        if(this.options.color) {
-            return this.options.color;
+    getBorderColor(): number {
+        if(this.options.border) {
+            return this.options.border.color;
         } else {
             return AppConfig.layer.defaultColor;
+        }
+    }
+
+    getBorderAlpha(): number {
+        if(this.options.border) {
+            return this.options.border.alpha;
+        } else {
+            return 1;
+        }
+    }
+
+    getBorderShader(): Shader | undefined {
+        if(this.options.border && this.options.border.shader) {
+            return this.options.border.shader;
+        } else {
+            return undefined;
         }
     }
 
@@ -68,5 +86,12 @@ export default class Layer extends Container implements ILayer {
 
     setVisibility(visibility: boolean): void {
         this.visible = visibility;
+    }
+
+    getAllChildrenProperty(propertyName: string): any[] {
+        const childrenProperties: any[] = [];
+        this.children.forEach((child) => console.log(child));
+
+        return childrenProperties;
     }
 }

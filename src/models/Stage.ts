@@ -25,7 +25,7 @@ export default class Stage extends Container {
     constructor() {
         super();
         this.renderer = this.initRenderer();
-        this.background.addLayer(new Layer({ name: "Test", borderWidth: AppConfig.layer.defaultWidth, color: AppConfig.layer.defaultColor }), true);
+        this.background.addLayer(new Layer({ name: "Test", color: AppConfig.layer.defaultColor }), true);
         this.foreground.setCurrentLayer(this.background.getActiveLayer());
         this.addChild(this.background);
         this.addLayer(this.foreground, true);

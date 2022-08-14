@@ -1,12 +1,16 @@
 import { DirectionEnum } from "@/types/DirectionEnum";
 import { RenderableHelper } from "@/types/Helper"
-import { AxisHelper } from "../Snappers/Helpers"
+import { AxisHelper } from "../Snappers/AxisHelper"
 import { AppConfig } from "@/config/AppConfig";
 import Layer from "../Layer";
 import Point from "@/types/Point";
-//import { DashLineShader } from "@pixi/graphics-smooth";
+import { DashLineShader } from "@pixi/graphics-smooth";
+
+const shaderDashed: DashLineShader = new DashLineShader({dash: 5, gap: 8});
 export default class AxisHelperRenderer extends RenderableHelper  {
     snapper: AxisHelper;
+    //TODO - whenever we move the line we create new instance of this class and it's bit laggy when we need to initialize shader over and over again. After optimizing, 
+    // remove the global variable shaderDashed
     //shader: DashLineShader = new DashLineShader({dash: 5, gap: 8});
     
     constructor(snapper: AxisHelper) {
@@ -15,7 +19,7 @@ export default class AxisHelperRenderer extends RenderableHelper  {
     }
 
     addToLayer(layer: Layer) {
-        this.lineStyle({width: AppConfig.snapper.borderWidth, color: AppConfig.snapper.color, alpha: 0.5, shader: this.shader});
+        this.lineStyle({width: AppConfig.snapper.borderWidth, color: AppConfig.snapper.color, alpha: 0.5, shader: shaderDashed});
 
         this.moveTo(this.snapper.start.x, this.snapper.start.y);
         const localTopBottom = layer.toLocal(new Point(0,0));

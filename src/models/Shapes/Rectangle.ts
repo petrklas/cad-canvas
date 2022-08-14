@@ -5,6 +5,7 @@ import { Angle } from "@/utils/Math";
 import Layer from "../Layer";
 import RectangleRenderer from "../Renderer/RectangleRenderer";
 import { ISnapper } from "@/types/Snapper";
+import { Style as RectangleStyle } from "./Rectangle/Style";
 
 
 export class Rectangle implements IRectangleShape {
@@ -14,11 +15,7 @@ export class Rectangle implements IRectangleShape {
     private height = 0;
     rotation: Angle = new Angle(0);
     hitArea: Polygon | null = null;
-    layer: Layer;
-
-    constructor(layer: Layer) {
-        this.layer = layer;
-    }
+    style: RectangleStyle = new RectangleStyle();
 
     setStart(start: Point) {
         this.start = start;

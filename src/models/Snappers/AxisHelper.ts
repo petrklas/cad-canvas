@@ -9,6 +9,7 @@ import { Angle, getEndpointFromLengthAndAngle, getLineAngle, getLineLength } fro
 export class AxisHelper implements IHelper {
     start: IPoint;
     direction: DirectionEnum;
+    rendererInstance: AxisHelperRenderer | undefined;
 
     constructor(start: IPoint, direction: DirectionEnum) {
         this.start = start;
@@ -74,6 +75,10 @@ export class AxisHelper implements IHelper {
     }
 
     getRenderObject(): AxisHelperRenderer {
-        return new AxisHelperRenderer(this);
+        if (!this.rendererInstance ) {
+            this.rendererInstance = new AxisHelperRenderer(this);
+        }
+
+        return this.rendererInstance;
     }
 }

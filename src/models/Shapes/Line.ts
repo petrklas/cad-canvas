@@ -4,11 +4,7 @@ import { CenterSnapper, EndPointSnapper } from "../Snappers/Snappers";
 import { ILineShape } from "@/types/Shape";
 import LineRenderer from "../Renderer/LineRenderer";
 import { Angle, getLineAngle, getLineLength, getEndpointFromLengthAndAngle } from "@/utils/Math";
-import { IShapeColorType } from "@/types/Color";
-import { ILayer } from "@/types/Layer";
-import Layer from "../Layer";
-import { Inherited } from "@/types/Inherited";
-import { IShapeBorder } from "@/types/Border";
+import { Style as LineStyle } from "./Line/Style";
 
 export class Line implements ILineShape {
     private start: Point = new Point(0, 0);
@@ -17,12 +13,9 @@ export class Line implements ILineShape {
     rotation: Angle = new Angle(0);
     center: Point = new Point(0, 0);
     hitArea: Polygon | null = null;
-    border: IShapeBorder = {color: "inherited", thickness: "inherited"};
-    layer: Layer;
+    style: LineStyle = new LineStyle();
+    rendererInstance: LineRenderer | undefined;
 
-    constructor(layer: Layer) {
-        this.layer = layer;
-    }
 
     setStart(start: Point) {
         this.start = start;
@@ -124,6 +117,10 @@ export class Line implements ILineShape {
     }
 
     getRenderObject(): LineRenderer {
-        return new LineRenderer(this);
+        if (!this.rendererInstance ) {
+            this.rendererInstance = new LineRenderer(this);
+        }
+
+        return this.rendererInstance;
     }
 }

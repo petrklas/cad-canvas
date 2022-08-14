@@ -1,5 +1,5 @@
 import Stage from "../../../../Stage";
-import { AxisHelper } from "../../../../Snappers/Helpers";
+import { AxisHelper } from "../../../../Snappers/AxisHelper";
 import { Line } from "@/models/Shapes/Line";
 import IShapeModifier from "@/types/ShapeModifier";
 

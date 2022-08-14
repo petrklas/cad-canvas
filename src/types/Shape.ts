@@ -9,7 +9,6 @@ import { IShapeBorder } from "./Border";
 export interface IShape {
     getRenderObject: () => IRenderableShape;
     getSnappers: () => Array<ISnapper>;
-    layer: ILayer;
 }
 
 export interface ILineShape extends IShape {

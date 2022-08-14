@@ -30,7 +30,7 @@ export class LineCreator extends EventHandler {
         }
     ];
 
-    mouseMoveEventListeners: IEventListener[] = [
+    eventListenersTriggered: IEventListener[] = [
         {
             name: CustomEvenTypes.MOUSE_MOVE,
             handler: (event: MouseMoveRelativeEvent): void => {
@@ -59,7 +59,7 @@ export class LineCreator extends EventHandler {
     constructor(stage: Stage) {
         super();
         this.stage = stage;
-        this.shape = new LineShape(this.stage.foreground);
+        this.shape = new LineShape();
     }
 
 
@@ -69,14 +69,14 @@ export class LineCreator extends EventHandler {
         if (!this.hasStarted) {
             this.startNewShape(mouseRelativePosition);
             this.hasStarted = true;
-            this.registerEventListeners(this.mouseMoveEventListeners);
+            this.registerEventListeners(this.eventListenersTriggered);
         } else {
             const endPoint = mouseRelativePosition;
             this.shape.setEnd(endPoint);
             this.applyModifiers();
-            this.shape.layer = this.stage.background.getActiveLayer();
+            const layer = this.stage.background.getActiveLayer();
 
-            const drawCommand = new DrawLineCommand(this.shape);
+            const drawCommand = new DrawLineCommand(this.shape, layer);
             this.stage.getStageHistory().addCommand(drawCommand);
             this.stage.renderStage();
 
@@ -87,7 +87,7 @@ export class LineCreator extends EventHandler {
     }
 
     private startNewShape(start: Point): void {
-        this.shape = new LineShape(this.stage.foreground);
+        this.shape = new LineShape();
         this.shape.setStart(start);
     }
 
@@ -98,7 +98,7 @@ export class LineCreator extends EventHandler {
             this.stage.clearForeground();
             this.shape.setEnd(mouseRelativePosition);
             this.applyModifiers();
-            const drawCommand = new DrawLineCommand(this.shape);
+            const drawCommand = new DrawLineCommand(this.shape, this.stage.foreground);
             drawCommand.execute();
             this.stage.renderStage();
             this.onShapeChange.emit(this.shape);
@@ -119,8 +119,7 @@ export class LineCreator extends EventHandler {
                 this.shape.setAngle(data.rotation)
             }
 
-            this.shape.layer = this.stage.background.getActiveLayer();
-            const drawCommand = new DrawLineCommand(this.shape);
+            const drawCommand = new DrawLineCommand(this.shape, this.stage.background.getActiveLayer());
             this.stage.getStageHistory().addCommand(drawCommand);
             // continue new shape immediately
             const end = this.shape.getEnd();
@@ -138,11 +137,11 @@ export class LineCreator extends EventHandler {
         this.reset();
         this.stage.clearForeground();
         this.stage.renderStage();
-        this.unregisterEventListeners(this.mouseMoveEventListeners);
+        this.unregisterEventListeners(this.eventListenersTriggered);
     }
 
     reset(): void {
         this.hasStarted = false;
-        this.shape = new LineShape(this.stage.foreground);
+        this.shape = new LineShape();
     }
 }

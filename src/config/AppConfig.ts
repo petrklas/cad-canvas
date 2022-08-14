@@ -11,6 +11,10 @@ export const AppConfig = {
     },
     layer: {
         defaultColor: 0xffffff,
-        defaultWidth: 1,
+        defaultBorderThickness: 1,
     },
+    selector: {
+        color: 0x00ADE3,
+        alpha: .3,
+    }
 }

@@ -2,14 +2,11 @@
 import Point from "@/types/Point";
 import { Rectangle as RectangleShape } from "../../../Shapes/Rectangle";
 import Stage from "../../../Stage";
-import { IHelper } from "@/types/Helper";
-import { SubEvent } from 'sub-events';
-import { ILineShapeFormProperties } from "@/types/Shape";
-import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
-import { CustomEvenTypes, EventKeys, GlobalEventTypes } from "@/utils/EventTypes";
+import { CustomEvenTypes } from "@/utils/EventTypes";
 import { EventHandler, IEventListener } from "@/types/EventHandler";
 import { DrawRectangle as DrawCommand } from "@/models/Commands/DrawRectangle";
-import IShapeModifier from "@/types/ShapeModifier";
+import { AppConfig } from "@/config/AppConfig";
+
 
 export class Selector extends EventHandler {
     hasStarted = false;
@@ -44,7 +41,7 @@ export class Selector extends EventHandler {
     constructor(stage: Stage) {
         super();
         this.stage = stage;
-        this.shape = new RectangleShape(this.stage.foreground);
+        this.shape = this.newShape();
     }
 
     leftClickUp(): void {
@@ -64,7 +61,7 @@ export class Selector extends EventHandler {
     }
 
     private startNewShape(start: Point) {
-        this.shape = new RectangleShape(this.stage.foreground);
+        this.shape = this.newShape();
         this.shape.setStart(start);
     }
 
@@ -74,7 +71,8 @@ export class Selector extends EventHandler {
         if (this.hasStarted) {
             this.stage.clearForeground();
             this.shape.setEnd(mouseRelativePosition);
-            const drawCommand = new DrawCommand(this.shape);
+            console.log(this.shape.style.border.shader);
+            const drawCommand = new DrawCommand(this.shape, this.stage.foreground);
             drawCommand.execute();
             this.stage.renderStage();
         }
@@ -82,6 +80,13 @@ export class Selector extends EventHandler {
 
     reset() {
         this.hasStarted = false;
-        this.shape = new RectangleShape(this.stage.foreground);
+        this.shape = this.newShape();
+    }
+
+    newShape(): RectangleShape {
+        const shape: RectangleShape =  new RectangleShape();
+        shape.style.border.color = AppConfig.selector.color;
+        shape.style.fill = {color: AppConfig.selector.color, alpha: AppConfig.selector.alpha};
+        return shape;
     }
 }

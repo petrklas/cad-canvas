@@ -1,6 +1,5 @@
 
 import { useEngine } from "./useEngine";
-import { inject } from "vue";
 import Layer from "../Layer";
 
 export function useLayers() {

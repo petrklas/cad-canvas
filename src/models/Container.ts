@@ -1,6 +1,6 @@
 import { Container as PIXIContainer} from "@pixi/display";
-import RenderableObject from "@/types/RenderableObject";
 import Layer from "./Layer";
+import { RenderableShape } from "@/types/RenderableShape";
 
 export default class Container extends PIXIContainer {
     layers: Layer[] = [];
@@ -46,7 +46,7 @@ export default class Container extends PIXIContainer {
         return this.activeLayer;
     }
 
-    addToLayer(displayObject: RenderableObject, layer: Layer): void {
+    addToLayer(displayObject: RenderableShape, layer: Layer): void {
         const index: number = this.layers.indexOf(layer)
         if (index != -1) {
             this.layers[index].addShape(displayObject);
@@ -55,11 +55,21 @@ export default class Container extends PIXIContainer {
         }
     }
 
-    addToCurrentLayer(displayObject: RenderableObject): void {
+    addToCurrentLayer(displayObject: RenderableShape): void {
         this.getActiveLayer().addShape(displayObject);
     }
 
     getLayers(): Layer[] {
         return this.layers;
+    }
+
+    // TODO: correct return type
+    getChildrenRecursive(): any[] {
+        let children: any[] = [];
+        for(let i = 0; i < this.layers.length; i++) {
+            children = [...this.layers[i].children];
+        }
+
+        return children;
     }
 }

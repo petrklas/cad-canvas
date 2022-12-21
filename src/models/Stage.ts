@@ -1,4 +1,3 @@
-import RenderableObject from "@/types/RenderableObject";
 import Layer from "./Layer";
 import Renderer from "./Renderer";
 import { RenderableShape } from "@/types/RenderableShape";
@@ -63,11 +62,11 @@ export default class Stage extends Container {
         this.mousePosition.relative = this.background.getActiveLayer().toLocal(absolutePosition);
     }
 
-    addToForeground(displayObject: RenderableObject): void {
+    addToForeground(displayObject: RenderableShape): void {
         this.foreground.addShape(displayObject);
     }
 
-    addToSnappers(displayObject: RenderableObject): void {
+    addToSnappers(displayObject: RenderableShape): void {
         this.snapLayer.addShape(displayObject);
     }
 

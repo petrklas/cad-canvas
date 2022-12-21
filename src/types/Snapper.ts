@@ -1,5 +1,5 @@
 import Point from "./Point";
-import RenderableObject from "./RenderableObject";
+import { RenderableShape } from "./RenderableShape";
 
 export enum SnapTypes {
     Endpoint,
@@ -18,7 +18,7 @@ export interface IRenderableSnapper {
     snapper: ISnapper | null;
 }
 
-export class RenderableSnapper extends RenderableObject implements IRenderableSnapper {
+export class RenderableSnapper extends RenderableShape implements IRenderableSnapper {
     snapper: ISnapper | null = null;
 }
 

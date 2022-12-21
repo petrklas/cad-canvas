@@ -1,10 +1,10 @@
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 import { AppConfig } from "@/config/AppConfig";
-import { EventHandler, IEventListener } from "@/types/EventHandler";
+import { EventHandler, IEventListener, IGlobalEventHandler } from "@/types/EventHandler";
 import { CustomEvenTypes } from "@/utils/EventTypes";
 
-export class Zoom extends EventHandler {
+export class Zoom extends EventHandler implements IGlobalEventHandler {
     stage: Stage;
     eventListeners: IEventListener[] = [
     {
@@ -45,6 +45,10 @@ export class Zoom extends EventHandler {
 
         stage.setScale(scale);
         stage.renderStage();
+    }
+
+    attachHandler(): void {
+        this.registerEventListeners(this.eventListeners);
     }
 }
 

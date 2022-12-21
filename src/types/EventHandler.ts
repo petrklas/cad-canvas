@@ -7,15 +7,17 @@ export interface IEventListener {
     unregisterHandler?: Registry;
 }
 
-export interface IEventHandler {
-    eventListeners: Array<IEventListener>;
-    unregisterAllEventListeners(): void;
-    registerAllEventListeners(): void;
+export interface IGlobalEventHandler {
+    attachHandler(): void;
+}
+
+export interface IEventHandler extends IGlobalEventHandler{
+    detachHandler(): void;
 }
 
 
-export abstract class EventHandler implements IEventHandler {
-    eventListeners: Array<IEventListener> = [];
+export abstract class EventHandler {
+    //registeredEventListeners: Array<IEventListener> = [];
     eventBus: EventBus;
 
     constructor() {
@@ -31,29 +33,27 @@ export abstract class EventHandler implements IEventHandler {
     registerEventListener(eventListener: IEventListener) {
         const register = this.eventBus.register(eventListener.name, eventListener.handler);
         eventListener.unregisterHandler = register;
-        const index = this.eventListeners.indexOf(eventListener);
+        /*const index = this.registeredEventListeners.indexOf(eventListener);
         if (index == -1) {
-            this.eventListeners.push(eventListener);
-        } 
+            this.registeredEventListeners.push(eventListener);
+        } */
         
     }
 
-    registerAllEventListeners(): void {
-        this.registerEventListeners(this.eventListeners);
-    }
 
-    unregisterEventListener(eventListener: IEventListener): boolean {
+    unregisterEventListener(eventListener: IEventListener): void {
         if (eventListener.unregisterHandler) {
             eventListener.unregisterHandler.unregister();
+            eventListener.unregisterHandler = undefined;
         }
 
-        const index = this.eventListeners.indexOf(eventListener);
+       /* const index = this.registeredEventListeners.indexOf(eventListener);
         if (index > -1) {
-            this.eventListeners.splice(index, 1);
+            this.registeredEventListeners.splice(index, 1);
             return true;
         } else {
             return false;
-        }
+        }*/
     }
 
     unregisterEventListeners(eventListeners: IEventListener[]): void {
@@ -61,10 +61,5 @@ export abstract class EventHandler implements IEventHandler {
             this.unregisterEventListener(eventListener);
         }
     }
-
-    unregisterAllEventListeners(): void {
-        this.unregisterEventListeners(this.eventListeners);
-    }
-
 
 }

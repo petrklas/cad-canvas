@@ -14,7 +14,7 @@ export default class EndPointSnapperRenderer extends RenderableSnapper {
     addToLayer(layer: Layer): void {
         this.lineStyle(AppConfig.snapper.borderWidth, AppConfig.snapper.color, 1);
         const offset = AppConfig.snapper.width / layer.scale.x / 2;
-        this.drawRect(this.snapper.getSnapPoint().x - offset,  this.snapper.getSnapPoint().y - offset, AppConfig.snapper.width /  layer.scale.x, AppConfig.snapper.width /  layer.scale.x);
+        this.drawRect(this.snapper.getSnapPoint().x - offset,  this.snapper.getSnapPoint().y - offset, AppConfig.snapper.width / layer.scale.x, AppConfig.snapper.width / layer.scale.x);
         layer.addShape(this);
     }
 }

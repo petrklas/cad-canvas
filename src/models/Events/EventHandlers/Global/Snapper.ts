@@ -1,5 +1,5 @@
 import Stage from "../../../Stage";
-import { EventHandler, IEventListener } from "@/types/EventHandler";
+import { EventHandler, IEventListener, IGlobalEventHandler } from "@/types/EventHandler";
 import { CustomEvenTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
 import { InteractionManager } from "@pixi/interaction";
 import { Point as PIXIPoint } from "@pixi/math";
@@ -7,7 +7,7 @@ import { RenderableShape } from "@/types/RenderableShape";
 import { ISnapper } from "@/types/Snapper";
 import EventBus, { IEventStopPropagationCallback } from "../../EventBus";
 
-export class Snapper extends EventHandler {
+export class Snapper extends EventHandler implements IGlobalEventHandler {
     stage: Stage;
     private interactionManager: InteractionManager;
     private activeSnapper: ISnapper | null = null;
@@ -36,7 +36,7 @@ export class Snapper extends EventHandler {
             const snappers = renderableObject.shape.getSnappers();
             // we loop all its snappers and check if any of them is nearby the mouse position
             for (let i = 0; i < snappers.length; i++) {
-                if (snappers[i].isSnapPointHovered(event.relativeOffset)) {
+                if (snappers[i].isSnapPointHovered(this.stage.mousePosition.getRelativePosition(true))) {
                     selectedSnapper = snappers[i];
                 }
             }
@@ -44,22 +44,19 @@ export class Snapper extends EventHandler {
 
         // if we found any applicable snapper
         if (selectedSnapper) {
-
+            console.log("activeSnapper");
             // Set the snapper as active. This prevents to clear the snapper scene all over
             this.activeSnapper = selectedSnapper;
-
-            // update the mouse position, but only in case that the current position isn't the same, 
-            // otherwise we would create infinite loop
+            this.stage.mousePosition.setActiveSnapper(selectedSnapper);
             if (event.relativeOffset != selectedSnapper.getSnapPoint()) {
                 event.relativeOffset = selectedSnapper.getSnapPoint();
-                stopPropagationCallback();
-                EventBus.getInstance().dispatch<MouseEvent>(CustomEvenTypes.MOUSE_MOVE, event);
                 this.renderSnapper(selectedSnapper);
             }
         }
         // if there wasn't found any applicable snapper remove it from scene
         else if (this.activeSnapper != null) {
             this.activeSnapper = null;
+            this.stage.mousePosition.removeActiveSnapper();
             this.clearSnappers();
 
         }
@@ -78,5 +75,8 @@ export class Snapper extends EventHandler {
     }
 
 
+    attachHandler(): void {
+        this.registerEventListeners(this.eventListeners);  
+    }
 }
 

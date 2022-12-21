@@ -7,6 +7,7 @@ import EndPointSnapperRenderer from "../Renderer/EndPointSnapperRenderer";
 export class EndPointSnapper implements ISnapper {
     type: SnapTypes = SnapTypes.Endpoint;
     point: Point;
+    readonly snapperWidth: number =  AppConfig.snapper.width + (2 * AppConfig.snapper.borderWidth);
 
     constructor(point: Point) {
         this.point = point;
@@ -22,7 +23,7 @@ export class EndPointSnapper implements ISnapper {
         const xDifferenceAbs = Math.abs(xDifference);
         const yDifferenceAbs = Math.abs(yDifference);
         // cursor is inside the snapper point rectangle
-        if (yDifferenceAbs < AppConfig.snapper.toleranceToShow && xDifferenceAbs < AppConfig.snapper.toleranceToShow) {
+        if (yDifferenceAbs < this.snapperWidth / 2 && xDifferenceAbs < this.snapperWidth / 2) {
             return true;
         }
 

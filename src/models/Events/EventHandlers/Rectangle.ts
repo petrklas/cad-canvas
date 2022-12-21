@@ -3,10 +3,10 @@ import Stage from "../../Stage";
 import Mouse from "../../Mouse";
 import { IKeyboardShortcut } from "@/types/KeyboardShortcuts";
 import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
-import { EventHandler } from "@/types/EventHandler";
+import { EventHandler, IEventHandler } from "@/types/EventHandler";
 
 
-export class Rectangle extends EventHandler {
+export class Rectangle extends EventHandler implements IEventHandler {
     stage: Stage;
     allowSnappers = true;
     modifier: IKeyboardShortcut = new KeyboardShortcut();
@@ -26,6 +26,14 @@ export class Rectangle extends EventHandler {
 
     keyEsc(event: KeyboardEvent) {
         console.log("Not implemented - Key ESC");
+    }
+
+    attachHandler(): void {
+       // this.unregisterEventListeners(this.eventListeners);
+    }
+
+    detachHandler(): void {
+       //this.registerEventListeners(this.eventListeners);
     }
 
 }

@@ -25,7 +25,7 @@ export default class AxisHelperRenderer extends RenderableHelper  {
         const localTopBottom = layer.toLocal(new Point(0,0));
         switch (this.snapper.direction) {
             case DirectionEnum.DOWN:
-                // TODO we should get coords from canvas
+                // TODO we should get the correct bottom coords from latest visible point on canvas
                 this.lineTo(this.snapper.start.x, this.snapper.start.x + 2000);
                 break;
             case DirectionEnum.UP:
@@ -35,7 +35,7 @@ export default class AxisHelperRenderer extends RenderableHelper  {
                 this.lineTo(localTopBottom.x, this.snapper.start.y);
                 break;
             case DirectionEnum.RIGHT:
-                // TODO we should get coords from canvas
+                // TODO we should get the correct right coords from latest visible point on canvas
                 this.lineTo(2000, this.snapper.start.y);
                 break;
         }

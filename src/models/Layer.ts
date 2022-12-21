@@ -1,9 +1,9 @@
 import { Container } from "@pixi/display";
-import RenderableObject from "@/types/RenderableObject";
 import { ILayer, ILayerOptions } from "@/types/Layer";
 import { AppConfig } from "@/config/AppConfig";
 import { IShaderType } from "@/types/Shader";
 import { Shader } from "pixi.js";
+import { RenderableShape } from "@/types/RenderableShape";
 
 export default class Layer extends Container implements ILayer {
     options: ILayerOptions;
@@ -75,7 +75,7 @@ export default class Layer extends Container implements ILayer {
        return this.scale.x
     }
 
-    addShape(object: RenderableObject): void {
+    addShape(object: RenderableShape): void {
 
         /*if(typeof shape.getSnappers !== "undefined" && shape.getSnappers()) {
             this.addSnappers(shape.getSnappers());

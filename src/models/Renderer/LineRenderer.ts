@@ -16,7 +16,7 @@ export default class LineRenderer extends RenderableShape {
     setInteractive() {
         if (this.shape.getHitArea()) {
             this.interactive = true;
-            this.applyHitArea(this.shape.getHitArea());
+            this.applyHitArea(this.shape.getHitArea().getAsPolygon());
         }
     }
 
@@ -55,6 +55,8 @@ export default class LineRenderer extends RenderableShape {
     }
 
     renderShape(layer: Layer) {
+        // TODO: this is trigered when mouse out. But it doesnt re-render the scene, because we do not render the stage on each mouse move anymore
+
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();
@@ -74,6 +76,7 @@ export default class LineRenderer extends RenderableShape {
     }
 
     hoverShape(layer: Layer) {
+        // TODO: this is trigered when hover. But it doesnt re-render the scene, because we do not render the stage on each mouse move anymore
         const start = this.shape.getStart();
         const end = this.shape.getEnd();
         this.clear();

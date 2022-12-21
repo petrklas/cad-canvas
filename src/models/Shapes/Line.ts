@@ -5,6 +5,7 @@ import { ILineShape } from "@/types/Shape";
 import LineRenderer from "../Renderer/LineRenderer";
 import { Angle, getLineAngle, getLineLength, getEndpointFromLengthAndAngle } from "@/utils/Math";
 import { Style as LineStyle } from "./Line/Style";
+import HitArea from "./HitArea";
 
 export class Line implements ILineShape {
     private start: Point = new Point(0, 0);
@@ -12,7 +13,7 @@ export class Line implements ILineShape {
     length = 0;
     rotation: Angle = new Angle(0);
     center: Point = new Point(0, 0);
-    hitArea: Polygon | null = null;
+    hitArea: HitArea | null = null;
     style: LineStyle = new LineStyle();
     rendererInstance: LineRenderer | undefined;
 
@@ -41,7 +42,17 @@ export class Line implements ILineShape {
         this.length = getLineLength(this.start, this.end);
     }
 
-    getHitArea(): Polygon {
+    getHitArea(): HitArea {
+        if(this.hitArea !== null) {
+            return this.hitArea;
+        }
+        this.hitArea = new HitArea(this.getStart(), this.getLength(), 20, this.getAngle());
+
+        return this.hitArea;
+    }
+
+    /*
+    getHoverArea(): Polygon {
         if(this.hitArea !== null) {
             return this.hitArea;
         }
@@ -79,7 +90,7 @@ export class Line implements ILineShape {
 
         this.hitArea = new Polygon(output);
         return this.hitArea;
-    }
+    }*/
 
 
     // Get center point of the line

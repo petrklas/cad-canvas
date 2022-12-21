@@ -7,12 +7,12 @@ import { SubEvent } from 'sub-events';
 import { ILineShapeFormProperties } from "@/types/Shape";
 import KeyboardShortcut from "@/models/Events/KeyboardShortuct";
 import { CustomEvenTypes, EventKeys, GlobalEventTypes, MouseMoveRelativeEvent } from "@/utils/EventTypes";
-import { EventHandler, IEventListener } from "@/types/EventHandler";
+import { EventHandler, IEventHandler, IEventListener } from "@/types/EventHandler";
 import { DrawLine as DrawLineCommand } from "@/models/Commands/DrawLine";
 import IShapeModifier from "@/types/ShapeModifier";
 import { LineAxisHelperModifier } from "./Modifiers/LineAxisHelperModifier";
 
-export class LineCreator extends EventHandler {
+export class LineCreator extends EventHandler implements IEventHandler {
     hasStarted = false;
     originPoint: Point = new Point(0, 0);
     stage: Stage;
@@ -135,13 +135,27 @@ export class LineCreator extends EventHandler {
 
     keyEsc(): void {
         this.reset();
-        this.stage.clearForeground();
-        this.stage.renderStage();
         this.unregisterEventListeners(this.eventListenersTriggered);
     }
 
     reset(): void {
         this.hasStarted = false;
         this.shape = new LineShape();
+        this.stage.clearForeground();
+        this.stage.renderStage();
+    }
+
+    unregisterAllEventListeners(): void {
+        this.unregisterEventListeners(this.eventListenersTriggered);
+        this.unregisterEventListeners(this.eventListeners);
+    }
+
+    attachHandler(): void {
+        this.registerEventListeners(this.eventListeners);
+    }
+
+    detachHandler(): void {
+        this.reset();
+        this.unregisterAllEventListeners();
     }
 }

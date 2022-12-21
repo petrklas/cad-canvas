@@ -1,10 +1,10 @@
 
-import { EventHandler, IEventListener } from "@/types/EventHandler";
+import { EventHandler, IEventListener, IGlobalEventHandler } from "@/types/EventHandler";
 import { CustomEvenTypes } from "@/utils/EventTypes";
 import Point from "@/types/Point";
 import Stage from "../../../Stage";
 
-export class Pan extends EventHandler {
+export class Pan extends EventHandler implements IGlobalEventHandler {
     stage: Stage;
     hasStarted = false;
     lastPoint: Point = new Point(0, 0);
@@ -59,6 +59,11 @@ export class Pan extends EventHandler {
             this.lastPoint = this.stage.mousePosition.absolute;
             this.stage.renderStage();
         }
+    }
+
+
+    attachHandler(): void {
+        this.registerEventListeners(this.eventListeners);  
     }
 }
 
